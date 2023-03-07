@@ -14,6 +14,10 @@ app.wsgi_app = DispatcherMiddleware(
     {'/samplesheet': app.wsgi_app}
 )  
 
+@app.errorhandler(Exception)
+def handle_error(e):
+    return render_template("error.html"), 500
+
 @app.route('/', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
