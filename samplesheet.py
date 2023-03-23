@@ -5,14 +5,26 @@ class singleCellSheet():
     def __init__(self, data_csv):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
+
         # index kits
         self.index_kits = {
-            'NN': pd.DataFrame.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
-            'NT': pd.DataFrame.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
-            'TT': pd.DataFrame.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
+            'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
+            'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
+            'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
             }
-    def parse_indeces():
-        ...
+        
+        self.parse_indeces()
+
+        
+    def parse_indeces(self):
+        for counter, row in enumerate(self.data.itertuples()):
+            for index_kit in self.index_kits:
+                if row.index in self.index_kits[index_kit]['index_name'].tolist():
+                    # Lord forgive me for this
+                    print('Ayyyyy')
+                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
+
     def write_data(self):
         ...
     def write_adt(self):
@@ -20,8 +32,6 @@ class singleCellSheet():
     def write_10X(self):
         ...
     def write_flex(self):
-        ...
-    def data_to_string(self):
         ...
 class illuminav2():
     def __init__(self, data_csv):
