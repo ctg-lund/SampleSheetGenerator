@@ -6,6 +6,7 @@ class singleCellSheet():
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
 
+        self.parse_data()
         # index kits
         self.index_kits = {
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
@@ -30,6 +31,20 @@ class singleCellSheet():
                     self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
                     self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
 
+    def parse_data(self):
+        # First check if the least necessary columns are present
+        valid_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
+        for valid_col in valid_columns:
+            if valid_col not in self.data.columns:
+                raise Exception('Missing column: ' + valid_col)
+        # Check if all Sample_IDs are unique
+        if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
+            raise Exception('Sample_IDs are not unique!')
+        # Check if all the indeces are unique
+        if len(self.data['index'].unique()) != len(self.data['index']):
+            raise Exception('Indeces are not unique!')
+
+        
     def write_data(self):
         data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
         self.data_header = "[Data]\n"
