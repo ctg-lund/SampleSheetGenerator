@@ -1,6 +1,6 @@
-Sample_ID,index,index2,Sample_Project
-Test_1,SI-TT-A1,SI-TT-A1,2023_001
-Test_2,SI-TT-A2,SI-TT-A2,2023_001
-Test_3,SI-TT-A3,SI-TT-A3,2023_001
-Test_4,SI-TT-A4,SI-TT-A4,2023_002
-Test_5,SI-TT-A5,SI-TT-A5,2023_002
+Sample_ID,index,index2,Sample_Project,Sample_Species,force,agg,nuclei,pipeline
+Test_1,SI-TT-A1,SI-TT-A1,2023_001,human,n,n,n,scrna-10x
+Test_2,SI-TT-A2,SI-TT-A2,2023_001,human,n,n,n,scrna-10x
+Test_3,SI-TT-A3,SI-TT-A3,2023_001,human,n,n,n,scrna-10x
+Test_4,SI-TT-A4,SI-TT-A4,2023_002,human,n,n,n,scrna-10x
+Test_5,SI-TT-A5,SI-TT-A5,2023_002,human,n,n,n,scrna-10x

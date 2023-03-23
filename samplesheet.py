@@ -17,6 +17,8 @@ class singleCellSheet():
 
         self.write_data()
 
+        self.write_10X()
+
         self.join_headers()
 
         
@@ -37,13 +39,19 @@ class singleCellSheet():
         self.adt_header = ''
 
     def write_10X(self):
-        self.tenx_header = ''
+        tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
+                        'pipeline', 'agg', 'force', 'test', 
+                        'hto', 'libtype', 'sample_pair'
+                        ]
+        tenx_columns = [x for x in tenx_columns if x in self.data.columns]
+        self.tenx_header = '[10X_Data]\n'
+        self.tenx_header += self.data[tenx_columns].to_csv(index=False)
 
     def write_flex(self):
         self.flex_header= ''
-        
+
     def join_headers(self):
-        self.data = self.data_header
+        self.data = self.data_header + self.tenx_header
 class illuminav2():
     def __init__(self, data_csv):
         # attempt to open data with pandas
