@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, make_response, send_file
 import csv
 from io import StringIO
-from samplesheet import illuminav2
+from samplesheet import illuminav2, singleCellSheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
 from pprint import pprint
@@ -48,13 +48,9 @@ def upload_singlecell():
     else:
         return render_template('singlecell_forms.html')
 def generate_singlecell_sheet(csv_data, form):
-    samplesheet = illuminav2(StringIO(csv_data))
-    samplesheet.set_read1cycles(form['readstructure'].split('-')[0])
-    samplesheet.set_pipeline(form['pipeline'])
-    samplesheet.set_lab_worker(form['labworker'])
-    samplesheet.set_bnf_worker(form['bnfworker'])
-    samplesheet.make_full_string()
-    samplesheet = samplesheet.string
+    samplesheet = singleCellSheet(StringIO(csv_data))
+
+
     return samplesheet
 
 def generate_genomics_sheet(csv_data, form):
