@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv):
+    def __init__(self, data_csv, sequencer):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
 
@@ -14,7 +14,7 @@ class singleCellSheet():
             'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
             }
         
-        self.parse_indeces()
+        self.parse_indeces(sequencer)
 
         self.write_data()
 
@@ -23,13 +23,19 @@ class singleCellSheet():
         self.join_headers()
 
         
-    def parse_indeces(self):
+    def parse_indeces(self, sequencer):
         for counter, row in enumerate(self.data.itertuples()):
             for index_kit in self.index_kits:
                 if row.index in self.index_kits[index_kit]['index_name'].tolist():
                     # Lord forgive me for this
-                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
+                    if sequencer == 'NovaSeq':
+                        self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
+                    elif sequencer == 'NextSeq':
+                        self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
+                    else:
+                        raise Exception('Sequencer not supported!')
 
     def parse_data(self):
         # First check if the least necessary columns are present

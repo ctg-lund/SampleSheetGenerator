@@ -56,7 +56,7 @@ def upload_singlecell():
     
 
 def generate_singlecell_sheet(csv_data, form):
-    samplesheet = singleCellSheet(StringIO(csv_data))
+    samplesheet = singleCellSheet(StringIO(csv_data), form['sequencer'])
     samplesheet = samplesheet.data
     return samplesheet
 
