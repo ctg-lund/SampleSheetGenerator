@@ -4,6 +4,7 @@ from io import StringIO
 from samplesheet import illuminav2, singleCellSheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
+import pandas as pd
 from pprint import pprint
 app = Flask(__name__)
 
@@ -36,10 +37,15 @@ def upload():
 @app.route('/singlecell', methods=['GET', 'POST'])
 def upload_singlecell():
     if request.method == 'POST':
-        csvfile = request.files['csvfile']
+        uploaded_files = request.files.getlist('csvfile')
+        samplesheets = list()
         # Do something with the uploaded CSV file...
-        csv_data = csvfile.stream.read().decode('utf-8')
-        samplesheet = generate_singlecell_sheet(csv_data, request.form)
+        for file in uploaded_files:
+            csv_data = file.stream.read().decode('utf-8')
+            samplesheets.append(pd.read_csv(StringIO(csv_data)))
+        csv_data = pd.concat(samplesheets)
+        csv_data = csv_data.fillna('n')
+        samplesheet = generate_singlecell_sheet(csv_data.to_csv(), request.form)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -48,7 +54,7 @@ def upload_singlecell():
     else:
         return render_template('singlecell_forms.html')
     
-    
+
 def generate_singlecell_sheet(csv_data, form):
     samplesheet = singleCellSheet(StringIO(csv_data))
     samplesheet = samplesheet.data
