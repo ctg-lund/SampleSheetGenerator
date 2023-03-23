@@ -41,7 +41,7 @@ class singleCellSheet():
         if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
             raise Exception('Sample_IDs are not unique!')
         # Check if all the indeces are unique
-        if len(self.data['index'].unique()) != len(self.data['index']):
+        if len(self.data['index'].unique()) != len(self.data['index']) or len(self.data['index2'].unique()) != len(self.data['index2']):
             raise Exception('Indeces are not unique!')
 
         
