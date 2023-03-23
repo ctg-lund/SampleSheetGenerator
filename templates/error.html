@@ -8,6 +8,10 @@
       <div class="alert alert-danger" role="alert">
         <h4 class="alert-heading">An error occurred</h4>
         <p>Something went wrong while processing your request. Please try again later.</p>
+        <hr>
+          {% if e %}
+            <p class="mb-0">Error message: {{ e }}</p>
+          {% endif %}
       </div>
     </div>
   </div>

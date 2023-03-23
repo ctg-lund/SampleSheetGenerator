@@ -16,7 +16,7 @@ app.wsgi_app = DispatcherMiddleware(
 
 @app.errorhandler(Exception)
 def handle_error(e):
-    return render_template("error.html"), 500
+    return render_template("error.html", e=e), 500
 
 @app.route('/', methods=['GET', 'POST'])
 def upload():
@@ -47,10 +47,11 @@ def upload_singlecell():
     
     else:
         return render_template('singlecell_forms.html')
+    
+    
 def generate_singlecell_sheet(csv_data, form):
     samplesheet = singleCellSheet(StringIO(csv_data))
-
-
+    samplesheet = samplesheet.data.astype(str)
     return samplesheet
 
 def generate_genomics_sheet(csv_data, form):
