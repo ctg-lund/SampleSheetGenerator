@@ -15,24 +15,34 @@ class singleCellSheet():
         
         self.parse_indeces()
 
+        self.write_data()
+
+        self.join_headers()
+
         
     def parse_indeces(self):
         for counter, row in enumerate(self.data.itertuples()):
             for index_kit in self.index_kits:
                 if row.index in self.index_kits[index_kit]['index_name'].tolist():
                     # Lord forgive me for this
-                    print('Ayyyyy')
                     self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
                     self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
 
     def write_data(self):
-        ...
+        print('test')
+        data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
+        self.data_header = "[Data]\n"
+        print('test3')
+        self.data_header += self.data[data_columns].to_csv(index=False)
+        print('test2')
     def write_adt(self):
-        ...
+        self.adt_header = ''
     def write_10X(self):
-        ...
+        self.tenx_header = ''
     def write_flex(self):
-        ...
+        self.flex_header= ''
+    def join_headers(self):
+        self.data = self.data_header
 class illuminav2():
     def __init__(self, data_csv):
         # attempt to open data with pandas
