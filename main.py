@@ -51,7 +51,7 @@ def upload_singlecell():
     
 def generate_singlecell_sheet(csv_data, form):
     samplesheet = singleCellSheet(StringIO(csv_data))
-    samplesheet = samplesheet.data.astype(str)
+    samplesheet = samplesheet.data.to_csv(index=False)
     return samplesheet
 
 def generate_genomics_sheet(csv_data, form):
