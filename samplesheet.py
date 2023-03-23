@@ -56,7 +56,7 @@ class singleCellSheet():
     def write_10X(self):
         tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
                         'pipeline', 'agg', 'force', 'test', 
-                        'hto', 'libtype', 'sample_pair'
+                        'hto', 'libtype', 'sample_pair', 'nuclei'
                         ]
         tenx_columns = [x for x in tenx_columns if x in self.data.columns]
         self.tenx_header = '[10X_Data]\n'
