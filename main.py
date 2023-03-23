@@ -24,7 +24,7 @@ def upload():
         csvfile = request.files['csvfile']
         # Do something with the uploaded CSV file...
         csv_data = csvfile.stream.read().decode('utf-8')
-        samplesheet = generate_sheet(csv_data, request.form)
+        samplesheet = generate_genomics_sheet(csv_data, request.form)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -39,7 +39,7 @@ def upload_singlecell():
         csvfile = request.files['csvfile']
         # Do something with the uploaded CSV file...
         csv_data = csvfile.stream.read().decode('utf-8')
-        samplesheet = generate_sheet(csv_data, request.form)
+        samplesheet = generate_singlecell_sheet(csv_data, request.form)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -47,8 +47,17 @@ def upload_singlecell():
     
     else:
         return render_template('singlecell_forms.html')
+def generate_singlecell_sheet(csv_data, form):
+    samplesheet = illuminav2(StringIO(csv_data))
+    samplesheet.set_read1cycles(form['readstructure'].split('-')[0])
+    samplesheet.set_pipeline(form['pipeline'])
+    samplesheet.set_lab_worker(form['labworker'])
+    samplesheet.set_bnf_worker(form['bnfworker'])
+    samplesheet.make_full_string()
+    samplesheet = samplesheet.string
+    return samplesheet
 
-def generate_sheet(csv_data, form):
+def generate_genomics_sheet(csv_data, form):
     samplesheet = illuminav2(StringIO(csv_data))
     samplesheet.set_read1cycles(form['readstructure'].split('-')[0])
     samplesheet.set_pipeline(form['pipeline'])
