@@ -33,6 +33,21 @@ def upload():
     else:
         return render_template('forms.html')
 
+@app.route('/singlecell', methods=['GET', 'POST'])
+def upload_singlecell():
+    if request.method == 'POST':
+        csvfile = request.files['csvfile']
+        # Do something with the uploaded CSV file...
+        csv_data = csvfile.stream.read().decode('utf-8')
+        samplesheet = generate_sheet(csv_data, request.form)
+        response = make_response(samplesheet)
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
+        return response
+    
+    else:
+        return render_template('singlecell_forms.html')
+
 def generate_sheet(csv_data, form):
     samplesheet = illuminav2(StringIO(csv_data))
     samplesheet.set_read1cycles(form['readstructure'].split('-')[0])
