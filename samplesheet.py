@@ -1,7 +1,28 @@
 import pandas as pd
 import re
 
-
+class singleCellSheet():
+    def __init__(self, data_csv):
+        # attempt to open data with pandas
+        self.data = pd.read_csv(data_csv)
+        # index kits
+        self.index_kits = {
+            'NN': pd.DataFrame.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
+            'NT': pd.DataFrame.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
+            'TT': pd.DataFrame.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
+            }
+    def parse_indeces():
+        ...
+    def write_data(self):
+        ...
+    def write_adt(self):
+        ...
+    def write_10X(self):
+        ...
+    def write_flex(self):
+        ...
+    def data_to_string(self):
+        ...
 class illuminav2():
     def __init__(self, data_csv):
         # attempt to open data with pandas
