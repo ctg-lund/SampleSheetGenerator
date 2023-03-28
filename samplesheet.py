@@ -28,9 +28,10 @@ class singleCellSheet():
             for index_kit in self.index_kits:
                 if row.index in self.index_kits[index_kit]['index_name'].tolist():
                     # Lord forgive me for this
+                    # I'm so sorry but Im so lazy
                     if sequencer == 'NovaSeq':
                         self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_a(i5)'].values[0]
+                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
                     elif sequencer == 'NextSeq':
                         self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
                         self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
