@@ -11,7 +11,8 @@ class singleCellSheet():
         self.index_kits = {
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
             'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
-            'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
+            'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv'),
+            'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv')
             }
         
         self.parse_indeces(sequencer)
