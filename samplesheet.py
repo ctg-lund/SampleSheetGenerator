@@ -44,7 +44,9 @@ class singleCellSheet():
         valid_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
         for valid_col in valid_columns:
             if valid_col not in self.data.columns:
-                raise Exception('Missing column: ' + valid_col)
+                raise Exception('Missing column: ' + valid_col + '. Are you sure it\'s csv format? Make sure to remove the [Data] header')
+        if 'pipeline' not in self.data.columns:
+            raise Exception('Missing column: pipeline. Currently viable options are: scrna-10x, scmkfastq')
         # Check if all Sample_IDs are unique
         if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
             raise Exception('Sample_IDs are not unique!')
