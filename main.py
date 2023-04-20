@@ -34,6 +34,14 @@ def upload():
     else:
         return render_template('forms.html')
 
+def select_indexkit():
+    """
+    Find available index kits from the index_table.csv file
+    """
+    df = pd.read_csv('data/index_table.csv')
+    index_kits = df['Index_Adapters'].unique()
+    return render_template('templates/forms.html', index_kits=index_kits)
+
 @app.route('/singlecell', methods=['GET', 'POST'])
 def upload_singlecell():
     if request.method == 'POST':
