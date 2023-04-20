@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv, sequencer):
+    def __init__(self, data_csv):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
 
@@ -11,10 +11,11 @@ class singleCellSheet():
         self.index_kits = {
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
             'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
-            'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv')
+            'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv'),
+            'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv')
             }
         
-        self.parse_indeces(sequencer)
+        self.parse_indeces()
 
         self.write_data()
 
@@ -23,27 +24,21 @@ class singleCellSheet():
         self.join_headers()
 
         
-    def parse_indeces(self, sequencer):
+    def parse_indeces(self):
         for counter, row in enumerate(self.data.itertuples()):
             for index_kit in self.index_kits:
                 if row.index in self.index_kits[index_kit]['index_name'].tolist():
-                    # Lord forgive me for this
-                    # I'm so sorry but Im so lazy
-                    if sequencer == 'NovaSeq':
-                        self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
-                    elif sequencer == 'NextSeq':
-                        self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                        self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
-                    else:
-                        raise Exception('Sequencer not supported!')
+                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
 
     def parse_data(self):
         # First check if the least necessary columns are present
         valid_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
         for valid_col in valid_columns:
             if valid_col not in self.data.columns:
-                raise Exception('Missing column: ' + valid_col)
+                raise Exception('Missing column: ' + valid_col + '. Are you sure it\'s csv format? Make sure to remove the [Data] header')
+        if 'pipeline' not in self.data.columns:
+            raise Exception('Missing column: pipeline. Currently viable options are: scrna-10x, scmkfastq')
         # Check if all Sample_IDs are unique
         if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
             raise Exception('Sample_IDs are not unique!')
