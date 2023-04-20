@@ -44,6 +44,10 @@ def upload_singlecell():
             csv_data = file.stream.read().decode('utf-8')
             samplesheets.append(pd.read_csv(StringIO(csv_data)))
         csv_data = pd.concat(samplesheets)
+        if 'pipeline' not in csv_data.columns:
+            csv_data['pipeline'] = 'seqonly'
+        else:
+            csv_data['pipeline'] = csv_data['pipeline'].fillna('seqonly')
         csv_data = csv_data.fillna('n')
         samplesheet = generate_singlecell_sheet(csv_data.to_csv(), request.form)
         response = make_response(samplesheet)
