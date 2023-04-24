@@ -69,12 +69,15 @@ class singleCellSheet():
 
     def join_headers(self):
         self.data = self.data_header + self.tenx_header
+
+
+
 class illuminav2():
     def __init__(self, data_csv):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
-        # defaults
-        # commas = columns + 1 (should never be less than 5)
+        self.indexes = pd.DataFrame()
+        self.index_kit = ''
         self.commas = self.data.shape[1] + 1
         self.read1cycles = 151
         self.adapters = [
@@ -84,63 +87,87 @@ class illuminav2():
         self.pipeline = 'SeqOnly'
         # the flowcell is located in RunInfo.xml
         #self.flowcell = 'H7Y2VBCXY'
+        # flag for removal, track in database!
         self.lab_worker = 'John Doe'
         self.bnf_worker = 'Jane Doe'
+        self.sequencer = 'NovaSeq'
         # always validate the input data!
         self.validate()
 
     def validate(self):
         # we should only have these columns:
-        # 'Lane'*, 'Sample_ID', 'Sample_Project', 'index', 'index2'
-        # Lane is optional!
+        # 'Lane', 'Sample_ID', 'Sample_Project'
         # all other columns need to be removed
         # if these columns do not exist we fail
-        valid_columns = ['Lane', 'Sample_ID', 'Sample_Project', 'index', 'index2']
+        valid_columns = ['Lane', 'Sample_ID', 'Sample_Project']
         for col in self.data.columns:
             if col not in valid_columns:
                 self.data.drop(col, axis=1, inplace=True)
-        # see that the number of columns is now 4
-        if self.data.shape[1] < 4:
+        # see that the number of columns is now 3
+        if self.data.shape[1] < 3:
             raise Exception('No valid columns found in input data!')
+    
+    def get_indexes(self, index_kit, RC=True, reference='data/index_table.csv'):
+        """
+        Get the indexes for the given index kit.
+        The index table is a csv file with the following columns:
+        Index_Adapters, Index, Index2_forward_read, Index2_reverse_complement
+        See: https://knowledge.illumina.com/software/general/software-general-reference_material-list/000001800
+        """
+        # read in the index table
+        index_table = pd.read_csv(reference)
+        # get the indexes for the given kit
+        select = index_table.loc[index_table['Index_Adapters'] == index_kit]
+        # only extract columns Index and Index2_reverse_complement or Index2_forward_read
+        # depending on whether i2_rev_trans is True or False
+        if RC:
+            indexes = select.loc[:,['Index', 'Index2_reverse_complement']]
+        else:
+            indexes = select.loc[:,['Index', 'Index2_forward_read']]
+        self.indexes = indexes
+        
+        # reshape indexes by removing rows until there are as many rows as in self.data
+        self.indexes.drop(self.indexes.index[self.data.shape[0]:], inplace=True)
+       
+        # reset the index
+        self.indexes.reset_index(drop=True, inplace=True)
+        # add the indexes to the data
+        print(indexes)
+        self.data['index'] = self.indexes.loc[:,'Index']
+        # variable column name!
+        self.data['index2'] = self.indexes.iloc[:,1]
+        print(self.data)
 
-    def set_read1cycles(self, read1):
-        self.read1cycles = int(read1) + 1 
-    
-    def set_adapters(self, a1, a2): 
-        self.adapters = [a1, a2]
-    
-    def set_pipeline(self, pipeline):
-        self.pipeline = pipeline
-    
-    def set_lab_worker(self, lab_worker):
-        self.lab_worker = lab_worker
-    
-    def set_bnf_worker(self, bnf_worker):       
-        self.bnf_worker = bnf_worker    
     
     def make_full_string(self):
         dstr = ','.join(re.split(r'[ \t]+', (self.data.to_string(index=False))))
-        self.string = "[Header]" + "," * self.commas + "\n" +\
-        "FileFormatVersion,2" + "," * (self.commas - 1) + "\n" +\
-        "," * self.commas + "\n" +\
-        "[Reads]" + "," * self.commas + "\n" +\
-        "Read1Cycles," + str(self.read1cycles) + "," * (self.commas - 1) + "\n" +\
-        "," * self.commas + "\n" +\
-        "[Yggdrasil_Settings]" + "," * self.commas + "\n" +\
-        "Pipeline" + "," + self.pipeline + "," * (self.commas - 1) + "\n" +\
-        "LabWorker" + "," + self.lab_worker + "," * (self.commas - 1) + "\n" +\
-        "BNFWorker" + "," + self.bnf_worker + "," * (self.commas - 1) + "\n" +\
-        "," * self.commas + "\n" +\
-        "[BCLConvert_Settings]" + "," * self.commas + "\n" +\
-        "AdapterRead1" + "," + self.adapters[0] + "," * (self.commas - 1) + "\n" +\
-        "AdapterRead2" + "," + self.adapters[1] + "," * (self.commas - 1) + "\n" +\
-        "," * self.commas + "\n" +\
-        "[BCLConvert_Data]" + "," * self.commas + "\n" +\
-        f"{dstr.lstrip(',')}" + "\n" +\
-        "," * self.commas + "\n"
-        # eventually add Yggdrasil_Data
-    
+        # remove leading commas
+        dstr = re.sub(r'\n,','\n',dstr)
+        # remove first comma
+        dstr = re.sub(r'^,','\n',dstr)
+        # trim whitespace
+        dstr = dstr.strip()
+        self.string = f"""[Header],,
+FileFormatVersion,2,
+,,
+[Reads],,
+Read1Cycles,{self.read1cycles},
+,,
+[Yggdrasil_Settings],,
+Pipeline,{self.pipeline},,
+LabWorker,{self.lab_worker},,
+BNFWorker,{self.bnf_worker},,
+,,
+[BCLConvert_Settings],,
+AdapterRead1,{self.adapters[0]},,
+AdapterRead2,{self.adapters[1]},,
+,,
+[BCLConvert_Data],,
+{dstr}
+,,
+"""
+
     def write_to_file(self, file):
         self.make_full_string() 
         with open(file, 'wb') as f:  
-            f.write(self.string.encode('ascii', 'ignore')) 
+            f.write(self.string.encode('ascii', 'ignore'))

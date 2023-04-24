@@ -1,4 +1,4 @@
-Index_Adapters,Index_Plate_Well,helperCatenate,Instrument_Type,product.no,I7_Index_ID,index,I5_Index_ID,Index2_reverse_complement,Index2_forward_read,,,,,,,,,,,,,,,
+Index_Adapters,Index_Plate_Well,helperCatenate,Instrument_Type,product.no,I7_Index_ID,Index,I5_Index_ID,Index2_reverse_complement,Index2_forward_read,,,,,,,,,,,,,,,
 IDT-Ilmn RNA UD Indexes SetA Ligation,A01,IDT-Ilmn RNA UD Indexes SetA LigationA01,NovaSeq1.5,20040553,UDP0001,GAACTGAGCG,UDP0001,CGCTCCACGA,TCGTGGAGCG,,,,,,,,,,,,,,,
 IDT-Ilmn RNA UD Indexes SetA Ligation,B01,IDT-Ilmn RNA UD Indexes SetA LigationB01,NovaSeq1.5,20040553,UDP0002,AGGTCAGATA,UDP0002,TATCTTGTAG,CTACAAGATA,,,,,,,,,,,,,,,
 IDT-Ilmn RNA UD Indexes SetA Ligation,C01,IDT-Ilmn RNA UD Indexes SetA LigationC01,NovaSeq1.5,20040553,UDP0003,CGTCTCATAT,UDP0003,AGCTACTATA,TATAGTAGCT,,,,,,,,,,,,,,,

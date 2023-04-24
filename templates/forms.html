@@ -44,9 +44,9 @@
   </div>
   <div class="form-group">
     <label for="select">Select index kit</label>
-    <select class="form-control" id="select" name="index-kit">
-      {% for indexkit in indexkits %}
-      <option value="{{indexkit}}">option1</option>
+    <select class="form-control" id="select" name="indexkit">
+      {% for indexkit in index_kits %}
+      <option value="{{indexkit}}">{{indexkit}}</option>
       {% endfor %}
     </select>
 </div>
