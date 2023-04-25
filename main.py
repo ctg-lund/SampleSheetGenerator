@@ -29,18 +29,14 @@ def upload():
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
+        # under construction
         return response
     
     else:
-        return render_template('forms.html')
-
-def select_indexkit():
-    """
-    Find available index kits from the index_table.csv file
-    """
-    df = pd.read_csv('data/index_table.csv')
-    index_kits = df['Index_Adapters'].unique()
-    return render_template('templates/forms.html', index_kits=index_kits)
+        df = pd.read_csv('data/index_table.csv')
+        index_kits = df['Index_Adapters'].unique()
+        return render_template('forms.html', index_kits=index_kits)
+    
 
 @app.route('/singlecell', methods=['GET', 'POST'])
 def upload_singlecell():
@@ -74,10 +70,22 @@ def generate_singlecell_sheet(csv_data, form):
 
 def generate_genomics_sheet(csv_data, form):
     samplesheet = illuminav2(StringIO(csv_data))
-    samplesheet.set_read1cycles(form['readstructure'].split('-')[0])
-    samplesheet.set_pipeline(form['pipeline'])
-    samplesheet.set_lab_worker(form['labworker'])
-    samplesheet.set_bnf_worker(form['bnfworker'])
+    samplesheet.sequencer = form['sequencer']
+    samplesheet.read1cycles = form['readstructure'].split('-')[0]
+    samplesheet.pipeline = form['pipeline']
+    samplesheet.lab_worker = form['labworker']
+    samplesheet.bnf_worker = form['bnfworker']
+    if form['sequencer'] == 'Novaseq':
+        RC = True
+    else:
+        RC = False
+    
+    
+    samplesheet.get_indexes(index_kit=form['indexkit'], RC=RC )
     samplesheet.make_full_string()
     samplesheet = samplesheet.string
     return samplesheet
+
+if __name__ == '__main__':
+    # localhost:5000
+    app.run(debug=True)
