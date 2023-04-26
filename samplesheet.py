@@ -5,7 +5,8 @@ class singleCellSheet():
     def __init__(self, data_csv):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
-
+        self.write_settings()
+        self.write_header()
         self.parse_data()
         # index kits
         self.index_kits = {
@@ -52,9 +53,16 @@ class singleCellSheet():
         
     def write_data(self):
         data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
-        self.data_header = "[Data]\n"
+        self.data_header = "[BCLConvert_Data]\n"
         self.data_header += self.data[data_columns].to_csv(index=False)
 
+    def write_header(self):
+        self.header = '[Header]\n'
+        self.header += 'FileFormatVersion,2\n'
+    
+    def write_settings(self):
+        self.settings = '[BCLConvert_Settings]\n'
+        self.settings += 'CreateFastqForIndexReads,0\n'
     def write_adt(self):
         self.adt_header = ''
 
@@ -71,7 +79,7 @@ class singleCellSheet():
         self.flex_header= ''
 
     def join_headers(self):
-        self.data = self.data_header + self.tenx_header
+        self.data = self.settings + self.header + self.data_header + self.tenx_header
 
 
 
