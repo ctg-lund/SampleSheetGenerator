@@ -61,6 +61,18 @@ def upload_singlecell():
     else:
         return render_template('singlecell_forms.html')
     
+@app.route('/lab-report', methods=['GET', 'POST'])
+def upload_lab_report():
+    if request.method == 'POST':
+        # the uploaded file is a single pdf
+        lab_report = request.files['lab_report']
+        # Do something with the uploaded PDF file...
+
+        return response
+    
+    else:
+        return render_template('lab_report.html')
+    
 
 def generate_singlecell_sheet(csv_data, form):
     samplesheet = singleCellSheet(StringIO(csv_data))

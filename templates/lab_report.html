@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Report Uploader - {{ super() }}
+{% endblock %}
+
+{% block content %}
+  <h1>Upload a File</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+      <label for="pid">YYYY-XXX:</label>
+  <input type="text" id="pid" name="pid" pattern="^\d{4}-\d{3}$">
+  <br><br>
+    <input type="file" name="lab_report" id="lab_report" accept="application/pdf">
+    <input type="submit" value="Upload PDF file!" name="submit">
+  </form>
+{% endblock %}
+
