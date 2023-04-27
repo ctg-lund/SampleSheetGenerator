@@ -8,7 +8,7 @@ git clone https://github.com/ctg-lund/SampleSheetGenerator
 cd SampleSheetGenerator
 docker-compose up
 ```
-Then navigate to localhost:8082.
+Then navigate to localhost:8082/samplesheet.
 
 ## Technical description
 The tech stack is based on three main technologies:
