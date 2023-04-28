@@ -2,9 +2,10 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv):
+    def __init__(self, data_csv, flexfile):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
+        self.flexfile = flexfile
         self.write_settings()
         self.write_header()
         self.parse_data()
@@ -18,13 +19,17 @@ class singleCellSheet():
         
         self.parse_indeces()
 
+        self.write_flex()
+
         self.write_data()
 
         self.write_10X()
 
         self.join_headers()
 
-        
+        print(self.flex_header)
+
+
     def parse_indeces(self):
         for counter, row in enumerate(self.data.itertuples()):
             for index_kit in self.index_kits:
@@ -50,6 +55,17 @@ class singleCellSheet():
         if len(indeces) != len(set(indeces)):
             raise Exception('Indeces are not unique!')
 
+    def write_flex(self):
+        print('allah')
+        if self.flexfile is not None:
+            flex_columns = ['sample_id','probe_barcode_ids']
+            for column in self.flexfile:
+                if column not in flex_columns:
+                    raise Exception(f'Invalid column in flexfile: {column}. please use following columns: {flex_columns}')
+            self.flex_header = '[Flex_Config]\n'
+            self.flex_header = self.flex_header + self.flexfile[flex_columns].to_csv(index=False)
+        else:
+            self.flex_header = ''
         
     def write_data(self):
         data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
@@ -75,11 +91,8 @@ class singleCellSheet():
         self.tenx_header = '[10X_Data]\n'
         self.tenx_header += self.data[tenx_columns].to_csv(index=False)
 
-    def write_flex(self):
-        self.flex_header= ''
-
     def join_headers(self):
-        self.data = self.settings + self.header + self.data_header + self.tenx_header
+        self.data = self.header + self.settings + self.data_header + self.tenx_header + self.flex_header
 
 
 
