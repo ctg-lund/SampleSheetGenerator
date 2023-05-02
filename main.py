@@ -41,6 +41,13 @@ def upload():
 def upload_singlecell():
     if request.method == 'POST':
         uploaded_files = request.files.getlist('csvfile')
+        if '' == request.files['flexfile'].filename:
+            flexfile = None
+        else:
+            flexfile = request.files['flexfile']
+            flexfile = flexfile.stream.read().decode('utf-8')
+            flexfile = pd.read_csv(StringIO(flexfile))
+        
         samplesheets = list()
         # Do something with the uploaded CSV file...
         for file in uploaded_files:
@@ -52,7 +59,8 @@ def upload_singlecell():
         else:
             csv_data['pipeline'] = csv_data['pipeline'].fillna('seqonly')
         csv_data = csv_data.fillna('n')
-        samplesheet = generate_singlecell_sheet(csv_data.to_csv(), request.form)
+
+        samplesheet = generate_singlecell_sheet(csv_data.to_csv(), flexfile)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -74,8 +82,8 @@ def upload_lab_report():
         return render_template('lab_report.html')
     
 
-def generate_singlecell_sheet(csv_data, form):
-    samplesheet = singleCellSheet(StringIO(csv_data))
+def generate_singlecell_sheet(csv_data, flexfile):
+    samplesheet = singleCellSheet(StringIO(csv_data), flexfile)
     samplesheet = samplesheet.data
     return samplesheet
 
