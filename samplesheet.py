@@ -56,8 +56,8 @@ class singleCellSheet():
             raise Exception('Indeces are not unique!')
 
     def write_flex(self):
-        print('allah')
         if self.flexfile is not None:
+            print(self.flexfile)
             flex_columns = ['sample_id','probe_barcode_ids']
             for column in self.flexfile:
                 if column not in flex_columns:
