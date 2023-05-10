@@ -14,7 +14,8 @@ class singleCellSheet():
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
             'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
             'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv'),
-            'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv')
+            'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv'),
+            'TotalSeq': pd.read_csv('data/TotalSeq_A_Dual_Index_Primer_Tables.csv'),
             }
         
         self.parse_indeces()
@@ -33,9 +34,13 @@ class singleCellSheet():
     def parse_indeces(self):
         for counter, row in enumerate(self.data.itertuples()):
             for index_kit in self.index_kits:
-                if row.index in self.index_kits[index_kit]['index_name'].tolist():
+                if row.index in self.index_kits[index_kit]['index_name'].tolist() and index_kit != 'TotalSeq':
                     self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
                     self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
+                elif row.index in self.index_kits[index_kit]['index_name'].tolist():
+                    print(row)
+                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index_sequence'].values[0]
+                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
 
     def parse_data(self):
         # First check if the least necessary columns are present
@@ -56,7 +61,6 @@ class singleCellSheet():
             raise Exception('Indeces are not unique!')
 
     def write_flex(self):
-        print('allah')
         if self.flexfile is not None:
             flex_columns = ['sample_id','probe_barcode_ids']
             for column in self.flexfile:
