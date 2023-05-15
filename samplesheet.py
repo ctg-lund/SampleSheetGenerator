@@ -86,12 +86,76 @@ class singleCellSheet():
 
     def write_10X(self):
         tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
-                        'pipeline', 'agg', 'force', 'test', 
-                        'hto', 'libtype', 'sample_pair', 'nuclei'
+                        'pipeline', 'agg', 'force', 'vdj',
+                        'sample_pair', 'nuclei', 'library'
                         ]
+        self.chemistries2pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.data.columns]
         self.tenx_header = '[10X_Data]\n'
         self.tenx_header += self.data[tenx_columns].to_csv(index=False)
+
+
+    def chemistries2pipelines(self):
+        chemistries_to_pipelines = {
+            '3GEX': 'scrna-10x',
+            '3CMO': 'scmulti-10x',
+            '3ADT': 'scciteseq-10x',
+            '3HTO': 'scciteseq-10x',
+            '3CRISPR': 'scciteseq-10x',
+            '5FB': 'seqonly',
+            '5TCR': 'scmulti-10x',
+            '5BCR': 'scmulti-10x',
+            'ATAC': 'scatac-10x',
+            'FLEX': 'scflex-10x',
+            'VISIUM': 'scvisium-10x'
+        }
+        chemistries_to_libraries = {
+            '3GEX': 'gex',
+            '3CMO': 'cmo',
+            '3ADT': 'adt',
+            '3HTO': 'hto',
+            '3CRISPR': 'crispr',
+            '5FB': 'fb',
+            '5TCR': 'tcr',
+            '5BCR': 'bcr',
+            'ATAC': 'atac',
+            'FLEX': 'flex',
+            'VISIUM': 'visium'
+        }
+        # Add pipeline and library columns
+        self.data['pipeline'] = self.data['chemistry'].map(chemistries_to_pipelines)
+        self.data['library'] = self.data['chemistry'].map(chemistries_to_libraries)
+        self.data['vdj'] = ['n' for _ in range(len(self.data))]
+        if any(['5BCR'==_ for _ in self.data['chemistry']]) or any(['5TCR'==_ for _ in self.data['chemistry']]):
+            vdj_dictionary = {'5BCR': 'bcr', '5TCR': 'tcr', 'n': 'n'}
+            self.data['vdj'] = self.data['chemistry'].apply(lambda x: vdj_dictionary[x] if x in vdj_dictionary else 'n')
+        else:
+            self.data['vdj'] = None
+        
+        for row in self.data.itertuples():
+            if row.pipeline in ('scmulti-10x', 'scciteseq-10x'):
+                if 'sample_pair' not in self.data.columns:
+                    raise Exception('sample_pair column not defined in samplesheet file when using scmulti or scciteseq for sample: ' + row.Sample_ID)
+                if row.sample_pair == 'n':
+                    raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
+                else:
+                    projectDf = self.data[self.data['Sample_Project'] == row.Sample_Project]
+                    matching_sample_pairs = projectDf[projectDf['sample_pair'] == row.sample_pair]
+                    if len(matching_sample_pairs) <= 1:
+                        raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
+                    pipeline = (lambda x: 'scmulti-10x' if 'scmulti-10x' in x else 'scciteseq-10x')(matching_sample_pairs.pipeline.values)
+                    self.data.at[row.Index, 'pipeline'] = pipeline
+                    matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
+            elif 'sample_pair' in self.data.columns and row.sample_pair != 'n':
+                projectDf = self.data[self.data['Sample_Project'] == row.Sample_Project]
+                matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
+                if 'scmulti-10x' in matching_sample_pipelines:
+                    matching_sample_pipeline = 'scmulti-10x'
+                elif 'scciteseq-10x' in matching_sample_pipelines:
+                    matching_sample_pipeline = 'scciteseq-10x'
+                self.data.at[row.Index, 'pipeline'] = matching_sample_pipeline
+                
+        self.data.fillna('n', inplace=True)
 
     def join_headers(self):
         self.data = self.header + self.settings + self.data_header + self.tenx_header + self.flex_header + self.feature_ref_header
