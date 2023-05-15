@@ -43,13 +43,6 @@ class singleCellSheet():
                     self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
 
     def parse_data(self):
-        # First check if the least necessary columns are present
-        valid_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
-        for valid_col in valid_columns:
-            if valid_col not in self.data.columns:
-                raise Exception('Missing column: ' + valid_col + '. Are you sure it\'s csv format? Make sure to remove the [Data] header')
-        if 'pipeline' not in self.data.columns:
-            raise Exception('Missing column: pipeline. Currently viable options are: scrna-10x, scmkfastq')
         # Check if all Sample_IDs are unique
         if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
             raise Exception('Sample_IDs are not unique!')
@@ -62,10 +55,7 @@ class singleCellSheet():
 
     def write_flex(self):
         if self.flexfile is not None:
-            flex_columns = ['sample_id','probe_barcode_ids']
-            for column in self.flexfile:
-                if column not in flex_columns:
-                    raise Exception(f'Invalid column in flexfile: {column}. please use following columns: {flex_columns}')
+            flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Project']
             self.flex_header = '[Flex_Config]\n'
             self.flex_header = self.flex_header + self.flexfile[flex_columns].to_csv(index=False)
         else:

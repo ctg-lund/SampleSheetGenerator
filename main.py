@@ -40,27 +40,26 @@ def upload():
 @app.route('/singlecell', methods=['GET', 'POST'])
 def upload_singlecell():
     if request.method == 'POST':
-        uploaded_files = request.files.getlist('csvfile')
-        if '' == request.files['flexfile'].filename:
-            flexfile = None
-        else:
-            flexfile = request.files['flexfile']
-            flexfile = flexfile.stream.read().decode('utf-8')
-            flexfile = pd.read_csv(StringIO(flexfile))
-        
-        samplesheets = list()
-        # Do something with the uploaded CSV file...
-        for file in uploaded_files:
-            csv_data = file.stream.read().decode('utf-8')
-            samplesheets.append(pd.read_csv(StringIO(csv_data)))
-        csv_data = pd.concat(samplesheets)
-        if 'pipeline' not in csv_data.columns:
-            csv_data['pipeline'] = 'seqonly'
-        else:
-            csv_data['pipeline'] = csv_data['pipeline'].fillna('seqonly')
-        csv_data = csv_data.fillna('n')
 
-        samplesheet = generate_singlecell_sheet(csv_data.to_csv(), flexfile)
+        # Process the flex configuration
+        samplesheet_info = combine_filestreams(request.files.getlist('samplesheets'),
+                            ['Sample_ID', 'Sample_Project', 'index', 'index2']
+                            )
+        if 'pipeline' not in samplesheet_info.columns:
+            samplesheet_info['pipeline'] = 'seqonly'
+        else:
+            samplesheet_info['pipeline'] = samplesheet_info['pipeline'].fillna('seqonly')
+        samplesheet_info = samplesheet_info.fillna('n')
+
+        # Process the flex configuration
+        if '' == request.files['flexfile'].filename:
+            flexdata = None
+        else:
+            flexdata = combine_filestreams(request.files.getlist('flexfile'),
+                            ['sample_id','probe_barcode_ids','Sample_Project']
+                            )
+        
+        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -104,6 +103,18 @@ def generate_genomics_sheet(csv_data, form):
     samplesheet.make_full_string()
     samplesheet = samplesheet.string
     return samplesheet
+
+def combine_filestreams(filestreams, allowed_columns):
+    file_list = list()
+    for file in filestreams:
+        file = file.stream.read().decode('utf-8')
+        file = pd.read_csv(StringIO(file))
+        # Check if the file has the required columns
+        if not set(allowed_columns).issubset(file.columns):
+            raise Exception(f'File {file} does not have all the required columns')
+        file_list.append(file)
+    filestreams = pd.concat(file_list)
+    return filestreams
 
 if __name__ == '__main__':
     # localhost:5000
