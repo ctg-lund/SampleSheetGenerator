@@ -41,7 +41,7 @@ def upload():
 def upload_singlecell():
     if request.method == 'POST':
 
-        # Process the flex configuration
+        # Process the sample info configuration
         samplesheet_info = combine_filestreams(request.files.getlist('samplesheets'),
                             ['Sample_ID', 'Sample_Project', 'index', 'index2']
                             )
@@ -58,8 +58,15 @@ def upload_singlecell():
             flexdata = combine_filestreams(request.files.getlist('flexfile'),
                             ['sample_id','probe_barcode_ids','Sample_Project']
                             )
-        
-        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata)
+        # Process the feature reference
+        if '' == request.files['feature_ref'].filename:
+            feature_ref = None
+        else:
+            feature_ref = combine_filestreams(request.files.getlist('feature_ref'),
+                            ['id','name','read','pattern','sequence','feature_type','Sample_Project']
+                            )
+            
+        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -81,8 +88,8 @@ def upload_lab_report():
         return render_template('lab_report.html')
     
 
-def generate_singlecell_sheet(csv_data, flexfile):
-    samplesheet = singleCellSheet(StringIO(csv_data), flexfile)
+def generate_singlecell_sheet(csv_data, flexfile, feature_ref):
+    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref)
     samplesheet = samplesheet.data
     return samplesheet
 
@@ -107,12 +114,12 @@ def generate_genomics_sheet(csv_data, form):
 def combine_filestreams(filestreams, allowed_columns):
     file_list = list()
     for file in filestreams:
-        file = file.stream.read().decode('utf-8')
-        file = pd.read_csv(StringIO(file))
+        file_csv = file.stream.read().decode('utf-8')
+        file_csv = pd.read_csv(StringIO(file_csv))
         # Check if the file has the required columns
-        if not set(allowed_columns).issubset(file.columns):
-            raise Exception(f'File {file} does not have all the required columns')
-        file_list.append(file)
+        if not set(allowed_columns).issubset(file_csv.columns):
+            raise Exception(f'File {file.filename} does not have all the required columns {allowed_columns}')
+        file_list.append(file_csv)
     filestreams = pd.concat(file_list)
     return filestreams
 

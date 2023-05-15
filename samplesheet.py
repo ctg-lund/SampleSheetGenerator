@@ -2,10 +2,11 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv, flexfile):
+    def __init__(self, data_csv, flexfile, feature_ref):
         # attempt to open data with pandas
         self.data = pd.read_csv(data_csv)
         self.flexfile = flexfile
+        self.feature_ref = feature_ref
         self.write_settings()
         self.write_header()
         self.parse_data()
@@ -26,9 +27,9 @@ class singleCellSheet():
 
         self.write_10X()
 
-        self.join_headers()
+        self.write_feature_ref()
 
-        print(self.flex_header)
+        self.join_headers()
 
 
     def parse_indeces(self):
@@ -76,6 +77,13 @@ class singleCellSheet():
     def write_adt(self):
         self.adt_header = ''
 
+    def write_feature_ref(self):
+        if self.feature_ref is not None:
+            self.feature_ref_header = '[Feature_Reference]\n'
+            self.feature_ref_header += self.feature_ref.to_csv(index=False)
+        else:
+            self.feature_ref_header = ''
+
     def write_10X(self):
         tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
                         'pipeline', 'agg', 'force', 'test', 
@@ -86,7 +94,7 @@ class singleCellSheet():
         self.tenx_header += self.data[tenx_columns].to_csv(index=False)
 
     def join_headers(self):
-        self.data = self.header + self.settings + self.data_header + self.tenx_header + self.flex_header
+        self.data = self.header + self.settings + self.data_header + self.tenx_header + self.flex_header + self.feature_ref_header
 
 
 
