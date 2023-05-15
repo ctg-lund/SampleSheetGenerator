@@ -132,6 +132,10 @@ class singleCellSheet():
         else:
             self.data['vdj'] = None
         
+        # Checks if the add on libraries are correctly defined
+        # Each sample should have a matching sample pair
+        # Each sample pair should have matching pipelines
+        # Its not beautiful but it's honest work
         for row in self.data.itertuples():
             if row.pipeline in ('scmulti-10x', 'scciteseq-10x'):
                 if 'sample_pair' not in self.data.columns:
