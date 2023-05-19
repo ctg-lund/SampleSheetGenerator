@@ -56,11 +56,11 @@ class singleCellSheet():
 
     def write_flex(self):
         if self.flexfile is not None:
-            flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Project']
-            self.flex_header = '[Flex_Config]\n'
+            flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Source']
+            self.flex_header = '[10X_Flex_Settings]\n'
             self.flex_header = self.flex_header + self.flexfile[flex_columns].to_csv(index=False)
         else:
-            self.flex_header = ''
+            self.flex_header = '[10X_Flex_Settings]\n'
         
     def write_data(self):
         data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
