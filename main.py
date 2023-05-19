@@ -56,7 +56,7 @@ def upload_singlecell():
             flexdata = None
         else:
             flexdata = combine_filestreams(request.files.getlist('flexfile'),
-                            ['sample_id','probe_barcode_ids','Sample_Project']
+                            ['sample_id','probe_barcode_ids','Sample_Source']
                             )
         # Process the feature reference
         if '' == request.files['feature_ref'].filename:
