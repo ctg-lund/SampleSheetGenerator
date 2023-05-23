@@ -56,11 +56,15 @@ class singleCellSheet():
 
     def write_flex(self):
         if self.flexfile is not None:
-            flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Project']
-            self.flex_header = '[Flex_Config]\n'
+            # Check if all the samples in the Sample_Source column exists in the self.data Sample_ID column
+            for row in self.flexfile.itertuples():
+                if row.Sample_Source not in self.data['Sample_ID'].tolist():
+                    raise Exception('Sample_Source: ' + row.Sample_Source + ' does not exist in the Sample_ID column of the samplesheet!')
+            flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Source']
+            self.flex_header = '[10X_Flex_Settings]\n'
             self.flex_header = self.flex_header + self.flexfile[flex_columns].to_csv(index=False)
         else:
-            self.flex_header = ''
+            self.flex_header = '[10X_Flex_Settings]\n'
         
     def write_data(self):
         data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
