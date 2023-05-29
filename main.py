@@ -5,6 +5,8 @@ from samplesheet import illuminav2, singleCellSheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
 import pandas as pd
+import sys
+import traceback
 from pprint import pprint
 app = Flask(__name__)
 
@@ -16,6 +18,8 @@ app.wsgi_app = DispatcherMiddleware(
 
 @app.errorhandler(Exception)
 def handle_error(e):
+    etype, value, tb = sys.exc_info()
+    print(traceback.print_exception(etype, value, tb))
     return render_template("error.html", e=e), 500
 
 @app.route('/', methods=['GET', 'POST'])
@@ -94,8 +98,8 @@ def upload_lab_report():
         return render_template('lab_report.html')
     
 
-def generate_singlecell_sheet(csv_data, flexfile, feature_ref):
-    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref)
+def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
+    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref, singleindex)
     samplesheet = samplesheet.data
     return samplesheet
 
