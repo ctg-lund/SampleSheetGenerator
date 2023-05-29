@@ -2,23 +2,27 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv, flexfile, feature_ref):
+    def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool):
         # attempt to open data with pandas
-        self.data = pd.read_csv(data_csv)
+        self.singleindex = singleindex
+        self.data = pd.read_csv(data_csv, index_col=False)
         self.flexfile = flexfile
         self.feature_ref = feature_ref
         self.write_settings()
         self.write_header()
         self.parse_data()
         # index kits
-        self.index_kits = {
+        self.dual_index_kits = {
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
             'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
             'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv'),
             'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv'),
             'TotalSeq': pd.read_csv('data/TotalSeq_A_Dual_Index_Primer_Tables.csv'),
             }
-        
+        self.single_index_kits = {
+            'N' : pd.read_csv('data/Single_Index_Kit_N_Set_A.csv')
+            }
+
         self.parse_indeces()
 
         self.write_flex()
@@ -33,15 +37,30 @@ class singleCellSheet():
 
 
     def parse_indeces(self):
-        for counter, row in enumerate(self.data.itertuples()):
-            for index_kit in self.index_kits:
-                if row.index in self.index_kits[index_kit]['index_name'].tolist() and index_kit != 'TotalSeq':
-                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
-                elif row.index in self.index_kits[index_kit]['index_name'].tolist():
-                    print(row)
-                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index_sequence'].values[0]
-                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
+            for counter, row in enumerate(self.data.itertuples()):
+                if self.singleindex:
+                    for index_kit in self.single_index_kits:
+                        if row.index in self.single_index_kits[index_kit]['index_name'].tolist():
+                            # Get the matching row from the index kit
+                            _index = self.single_index_kits[index_kit].loc[self.single_index_kits[index_kit].index_name == row.index]
+                            d = {'Sample_ID': [row.Sample_ID for _ in range(4)],
+                                'index': [_index[f'index{i}'].iloc[0] for i in range(1,5)],
+                                'Sample_Project': [row.Sample_Project for _ in range(4)]
+                                }
+                            newDf = pd.DataFrame(d)
+                            # Remove the old row by the name in the Sample_ID column
+                            self.data = self.data[self.data['Sample_ID'] != row.Sample_ID]
+                            # Add the new rows
+                            self.data =pd.concat([self.data, newDf] , ignore_index=True, axis=0)
+
+                else:
+                    for index_kit in self.dual_index_kits:
+                        if row.index in self.dual_index_kits[index_kit]['index_name'].tolist() and index_kit != 'TotalSeq':
+                            self.data.loc[counter, 'index'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                            self.data.loc[counter, 'index2'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
+                        elif row.index in self.dual_index_kits[index_kit]['index_name'].tolist():
+                            self.data.loc[counter, 'index'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index_sequence'].values[0]
+                            self.data.loc[counter, 'index2'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
 
     def parse_data(self):
         # Check if all Sample_IDs are unique
@@ -50,7 +69,10 @@ class singleCellSheet():
         # Check if all the indeces are unique
         indeces = list()
         for row in self.data.itertuples():
-            indeces.append((row.index, row.index2))
+            if self.singleindex:
+                indeces.append(row.index)
+            else:
+                indeces.append((row.index, row.index2))
         if len(indeces) != len(set(indeces)):
             raise Exception('Indeces are not unique!')
 
@@ -67,7 +89,10 @@ class singleCellSheet():
             self.flex_header = '[10X_Flex_Settings]\n'
         
     def write_data(self):
-        data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
+        if self.singleindex:
+            data_columns = ['Sample_ID', 'index', 'Sample_Project']
+        else:
+            data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
         self.data_header = "[BCLConvert_Data]\n"
         self.data_header += self.data[data_columns].to_csv(index=False)
 
@@ -96,7 +121,7 @@ class singleCellSheet():
         self.chemistries2pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.data.columns]
         self.tenx_header = '[10X_Data]\n'
-        self.tenx_header += self.data[tenx_columns].to_csv(index=False)
+        self.tenx_header += self.data[tenx_columns].drop_duplicates().to_csv(index=False)
 
 
     def chemistries2pipelines(self):
