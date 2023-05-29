@@ -102,7 +102,12 @@ class singleCellSheet():
     
     def write_settings(self):
         self.settings = '[BCLConvert_Settings]\n'
-        self.settings += 'CreateFastqForIndexReads,0\n'
+        if self.singleindex:
+            self.settings += 'CreateFastqForIndexReads,1\n'
+            self.settings += 'TrimUMI,0\n'
+            self.settings += 'OverrideCycles,Y50;I8;U24;Y49\n'
+        else:
+            self.settings += 'CreateFastqForIndexReads,0\n'
     def write_adt(self):
         self.adt_header = ''
 
