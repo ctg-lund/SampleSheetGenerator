@@ -41,9 +41,15 @@ def upload():
 def upload_singlecell():
     if request.method == 'POST':
 
+        if request.form.get('singleindex') == 'true':
+            singleindex = True
+            samplesheet_columns = ['Sample_ID','index','Sample_Project']
+        else:
+            singleindex = False
+            samplesheet_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
         # Process the sample info configuration
         samplesheet_info = combine_filestreams(request.files.getlist('samplesheets'),
-                            ['Sample_ID', 'Sample_Project', 'index', 'index2']
+                            samplesheet_columns
                             )
         if 'pipeline' not in samplesheet_info.columns:
             samplesheet_info['pipeline'] = 'seqonly'
@@ -66,7 +72,7 @@ def upload_singlecell():
                             ['id','name','read','pattern','sequence','feature_type','Sample_Project']
                             )
             
-        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref)
+        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref, singleindex)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
