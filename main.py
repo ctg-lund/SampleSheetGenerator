@@ -100,7 +100,7 @@ def upload_lab_report():
 
 def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
     samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref, singleindex)
-    samplesheet = samplesheet.data
+    samplesheet = samplesheet.dataDf
     return samplesheet
 
 def generate_genomics_sheet(csv_data, form):
