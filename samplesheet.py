@@ -122,7 +122,7 @@ class singleCellSheet():
     def write_10X(self):
         tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
                         'pipeline', 'agg', 'force', 'vdj',
-                        'sample_pair', 'nuclei', 'library'
+                        'sample_pair', 'nuclei', 'libtype'
                         ]
         self.chemistries2pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.dataDf.columns]
@@ -142,7 +142,9 @@ class singleCellSheet():
             '5BCR': 'scmulti-10x',
             'ATAC': 'scatac-10x',
             'FLEX': 'scflex-10x',
-            'VISIUM': 'scvisium-10x'
+            'VISIUM': 'scvisium-10x',
+            'MULTIOME': 'scarc-10x',
+            'OTHER': 'seqonly'
         }
         chemistries_to_libraries = {
             '3GEX': 'gex',
@@ -155,14 +157,17 @@ class singleCellSheet():
             '5BCR': 'bcr',
             'ATAC': 'atac',
             'FLEX': 'flex',
-            'VISIUM': 'visium'
+            'VISIUM': 'visium',
+            'MULTIOME': 'scarc',
+            'OTHER': 'seqonly'
         }
-        
-        # Add pipeline and library columns
+        if 'chemistry' not in self.dataDf.columns:
+            raise Exception('chemistry column not defined in samplesheet file!\n If your chemistry is\'nt not supported please use \'OTHER\' \n Supported chemistries: 3GEX, 3CMO, 3ADT, 3HTO, 3CRISPR, 5FB, 5TCR, 5BCR, ATAC, FLEX, VISIUM, MULTI, OTHER')
+        # Add pipeline and libtype columns
         self.dataDf['pipeline'] = self.dataDf['chemistry'].map(chemistries_to_pipelines)
-        self.dataDf['library'] = self.dataDf['chemistry'].map(chemistries_to_libraries)
+        self.dataDf['libtype'] = self.dataDf['chemistry'].map(chemistries_to_libraries)
+        # Add vdj column if tcr or bcr is present
         self.dataDf['vdj'] = ['n' for _ in range(len(self.dataDf))]
-        print ('meat')
         if any(['5BCR'==_ for _ in self.dataDf['chemistry']]) or any(['5TCR'==_ for _ in self.dataDf['chemistry']]):
             vdj_dictionary = {'5BCR': 'bcr', '5TCR': 'tcr', 'n': 'n'}
             self.dataDf['vdj'] = self.dataDf['chemistry'].apply(lambda x: vdj_dictionary[x] if x in vdj_dictionary else 'n')
@@ -197,7 +202,8 @@ class singleCellSheet():
                 self.dataDf.at[row.Index, 'pipeline'] = matching_sample_pipeline
         
         self.dataDf.fillna('n', inplace=True)
-
+    def parse_pairs(self):
+        ...
     def join_headers(self):
         self.dataDf = self.header + self.settings + self.dataDf_header + self.tenx_header + self.flex_header + self.feature_ref_header
 
