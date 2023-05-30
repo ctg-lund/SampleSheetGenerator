@@ -37,6 +37,7 @@ class singleCellSheet():
 
 
     def parse_indeces(self):
+            self.data.drop('Unnamed: 0', axis=1, inplace=True)
             for counter, row in enumerate(self.data.itertuples()):
                 if self.singleindex:
                     for index_kit in self.single_index_kits:
@@ -47,11 +48,11 @@ class singleCellSheet():
                                 'index': [_index[f'index{i}'].iloc[0] for i in range(1,5)],
                                 'Sample_Project': [row.Sample_Project for _ in range(4)]
                                 }
-                            newDf = pd.DataFrame(d)
+                            newDf = pd.merge(pd.DataFrame(d), self.data[self.data['Sample_ID'] == row.Sample_ID].drop(columns=['index', 'Sample_Project']), on='Sample_ID')
                             # Remove the old row by the name in the Sample_ID column
                             self.data = self.data[self.data['Sample_ID'] != row.Sample_ID]
                             # Add the new rows
-                            self.data =pd.concat([self.data, newDf] , ignore_index=True, axis=0)
+                            self.data =pd.concat([self.data, newDf], ignore_index=True ,  axis=0)
 
                 else:
                     for index_kit in self.dual_index_kits:
@@ -156,10 +157,12 @@ class singleCellSheet():
             'FLEX': 'flex',
             'VISIUM': 'visium'
         }
+        
         # Add pipeline and library columns
         self.data['pipeline'] = self.data['chemistry'].map(chemistries_to_pipelines)
         self.data['library'] = self.data['chemistry'].map(chemistries_to_libraries)
         self.data['vdj'] = ['n' for _ in range(len(self.data))]
+        print ('meat')
         if any(['5BCR'==_ for _ in self.data['chemistry']]) or any(['5TCR'==_ for _ in self.data['chemistry']]):
             vdj_dictionary = {'5BCR': 'bcr', '5TCR': 'tcr', 'n': 'n'}
             self.data['vdj'] = self.data['chemistry'].apply(lambda x: vdj_dictionary[x] if x in vdj_dictionary else 'n')
@@ -192,7 +195,7 @@ class singleCellSheet():
                 elif 'scciteseq-10x' in matching_sample_pipelines:
                     matching_sample_pipeline = 'scciteseq-10x'
                 self.data.at[row.Index, 'pipeline'] = matching_sample_pipeline
-                
+        
         self.data.fillna('n', inplace=True)
 
     def join_headers(self):
