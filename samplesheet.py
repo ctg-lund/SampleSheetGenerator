@@ -124,84 +124,44 @@ class singleCellSheet():
                         'pipeline', 'agg', 'force', 'vdj',
                         'sample_pair', 'nuclei', 'libtype'
                         ]
-        self.chemistries2pipelines()
+        self.parse_libraries_pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.dataDf.columns]
         self.tenx_header = '[10X_Data]\n'
         self.tenx_header += self.dataDf[tenx_columns].drop_duplicates().to_csv(index=False)
 
 
-    def chemistries2pipelines(self):
-        chemistries_to_pipelines = {
-            '3GEX': 'scrna-10x',
-            '3CMO': 'scmulti-10x',
-            '3ADT': 'scciteseq-10x',
-            '3HTO': 'scciteseq-10x',
-            '3CRISPR': 'scciteseq-10x',
-            '5FB': 'seqonly',
-            '5TCR': 'scmulti-10x',
-            '5BCR': 'scmulti-10x',
-            'ATAC': 'scatac-10x',
-            'FLEX': 'scflex-10x',
-            'VISIUM': 'scvisium-10x',
-            'MULTIOME': 'scarc-10x',
-            'OTHER': 'seqonly'
+    def parse_libraries_pipelines(self):
+        # Parses the libraries and pipelines columns
+        # Checks if the values are allowed
+        # Check if the combinations are allowed
+        allowed_libraries = [
+            'gex', 'cmo', 'adt', 'hto', 'crispr', 'tcr', 'bcr', 'atac', 'flex', 'visium', 'flex'
+        ]
+        allowed_pipelines = [
+            'scrna-10x', 'scmulti-10x', 'scatac-10x', 'scciteseq-10x', 'scarc-10x', 'scvisium-10x', 'scflex-10x'
+        ]
+        allowed_combinations = {
+            'gex': ['scrna-10x', 'scmulti-10x',  'scarc-10x', 'scciteseq-10x'],
+            'cmo': ['scmulti-10x'],
+            'adt': ['scmulti-10x', 'scciteseq-10x'],
+            'hto': ['scmulti-10x', 'scciteseq-10x'],
+            'crispr': ['scmulti-10x', 'scciteseq-10x'],
+            'tcr': ['scmulti-10x'],
+            'bcr': ['scmulti-10x'],
+            'atac': ['scatac-10x', 'scarc-10x'],
+            'flex': ['scflex-10x'],
+            'visium': ['scvisium-10x']
         }
-        chemistries_to_libraries = {
-            '3GEX': 'gex',
-            '3CMO': 'cmo',
-            '3ADT': 'adt',
-            '3HTO': 'hto',
-            '3CRISPR': 'crispr',
-            '5FB': 'fb',
-            '5TCR': 'tcr',
-            '5BCR': 'bcr',
-            'ATAC': 'atac',
-            'FLEX': 'flex',
-            'VISIUM': 'visium',
-            'MULTIOME': 'scarc',
-            'OTHER': 'seqonly'
-        }
-        if 'chemistry' not in self.dataDf.columns:
-            raise Exception('chemistry column not defined in samplesheet file!\n If your chemistry is\'nt not supported please use \'OTHER\' \n Supported chemistries: 3GEX, 3CMO, 3ADT, 3HTO, 3CRISPR, 5FB, 5TCR, 5BCR, ATAC, FLEX, VISIUM, MULTI, OTHER')
-        # Add pipeline and libtype columns
-        self.dataDf['pipeline'] = self.dataDf['chemistry'].map(chemistries_to_pipelines)
-        self.dataDf['libtype'] = self.dataDf['chemistry'].map(chemistries_to_libraries)
-        # Add vdj column if tcr or bcr is present
-        self.dataDf['vdj'] = ['n' for _ in range(len(self.dataDf))]
-        if any(['5BCR'==_ for _ in self.dataDf['chemistry']]) or any(['5TCR'==_ for _ in self.dataDf['chemistry']]):
-            vdj_dictionary = {'5BCR': 'bcr', '5TCR': 'tcr', 'n': 'n'}
-            self.dataDf['vdj'] = self.dataDf['chemistry'].apply(lambda x: vdj_dictionary[x] if x in vdj_dictionary else 'n')
-        else:
-            self.dataDf['vdj'] = None
-        
-        # Checks if the add on libraries are correctly defined
-        # Each sample should have a matching sample pair
-        # Each sample pair should have matching pipelines
-        # Its not beautiful but it's honest work
+        # Check if library column and pipeline column consist of allowed values
+        if 'pipeline' not in self.dataDf.columns:
+            raise Exception('pipeline column not found in samplesheet!')
         for row in self.dataDf.itertuples():
-            if row.pipeline in ('scmulti-10x', 'scciteseq-10x'):
-                if 'sample_pair' not in self.dataDf.columns:
-                    raise Exception('sample_pair column not defined in samplesheet file when using scmulti or scciteseq for sample: ' + row.Sample_ID)
-                if row.sample_pair == 'n':
-                    raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
-                else:
-                    projectDf = self.dataDf[self.dataDf['Sample_Project'] == row.Sample_Project]
-                    matching_sample_pairs = projectDf[projectDf['sample_pair'] == row.sample_pair]
-                    if len(matching_sample_pairs) <= 1:
-                        raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
-                    pipeline = (lambda x: 'scmulti-10x' if 'scmulti-10x' in x else 'scciteseq-10x')(matching_sample_pairs.pipeline.values)
-                    self.dataDf.at[row.Index, 'pipeline'] = pipeline
-                    matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
-            elif 'sample_pair' in self.dataDf.columns and row.sample_pair != 'n':
-                projectDf = self.dataDf[self.dataDf['Sample_Project'] == row.Sample_Project]
-                matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
-                if 'scmulti-10x' in matching_sample_pipelines:
-                    matching_sample_pipeline = 'scmulti-10x'
-                elif 'scciteseq-10x' in matching_sample_pipelines:
-                    matching_sample_pipeline = 'scciteseq-10x'
-                self.dataDf.at[row.Index, 'pipeline'] = matching_sample_pipeline
-        
-        self.dataDf.fillna('n', inplace=True)
+            if 'libtype' in row._fields and row.libtype not in allowed_libraries:
+                raise Exception('libtype: ' + row.libtype + ' not allowed! Allowed libtypes are: ' + ', '.join(allowed_libraries))
+            if row.pipeline not in allowed_pipelines:
+                raise Exception('pipeline: ' + row.pipeline + ' not allowed! Allowed pipelines are: ' + ', '.join(allowed_pipelines))
+            if 'libtype' in row._fields and row.pipeline not in allowed_combinations[row.libtype]:
+                raise Exception('libtype: ' + row.libtype + ' not allowed for pipeline: ' + row.pipeline + '! Allowed libtypes for pipeline: ' + row.libtype + ' are: ' + ', '.join(allowed_combinations[row.libtype]))
     def parse_pairs(self):
         ...
     def join_headers(self):
