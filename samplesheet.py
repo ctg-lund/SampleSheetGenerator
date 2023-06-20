@@ -2,23 +2,27 @@ import pandas as pd
 import re
 
 class singleCellSheet():
-    def __init__(self, data_csv, flexfile, feature_ref):
+    def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool):
         # attempt to open data with pandas
-        self.data = pd.read_csv(data_csv)
+        self.singleindex = singleindex
+        self.dataDf = pd.read_csv(data_csv, index_col=False)
         self.flexfile = flexfile
         self.feature_ref = feature_ref
         self.write_settings()
         self.write_header()
         self.parse_data()
         # index kits
-        self.index_kits = {
+        self.dual_index_kits = {
             'NN': pd.read_csv('data/Dual_Index_Kit_NN_Set_A.csv'),
             'NT': pd.read_csv('data/Dual_Index_Kit_NT_Set_A.csv'),
             'TT': pd.read_csv('data/Dual_Index_Kit_TT_Set_A.csv'),
             'TS': pd.read_csv('data/Dual_Index_Kit_TS_Set_A.csv'),
             'TotalSeq': pd.read_csv('data/TotalSeq_A_Dual_Index_Primer_Tables.csv'),
             }
-        
+        self.single_index_kits = {
+            'N' : pd.read_csv('data/Single_Index_Kit_N_Set_A.csv')
+            }
+
         self.parse_indeces()
 
         self.write_flex()
@@ -33,32 +37,51 @@ class singleCellSheet():
 
 
     def parse_indeces(self):
-        for counter, row in enumerate(self.data.itertuples()):
-            for index_kit in self.index_kits:
-                if row.index in self.index_kits[index_kit]['index_name'].tolist() and index_kit != 'TotalSeq':
-                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
-                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
-                elif row.index in self.index_kits[index_kit]['index_name'].tolist():
-                    print(row)
-                    self.data.loc[counter, 'index'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index, 'index_sequence'].values[0]
-                    self.data.loc[counter, 'index2'] = self.index_kits[index_kit].loc[self.index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
+            self.dataDf.drop('Unnamed: 0', axis=1, inplace=True)
+            for counter, row in enumerate(self.dataDf.itertuples()):
+                if self.singleindex:
+                    for index_kit in self.single_index_kits:
+                        if row.index in self.single_index_kits[index_kit]['index_name'].tolist():
+                            # Get the matching row from the index kit
+                            _index = self.single_index_kits[index_kit].loc[self.single_index_kits[index_kit].index_name == row.index]
+                            d = {'Sample_ID': [row.Sample_ID for _ in range(4)],
+                                'index': [_index[f'index{i}'].iloc[0] for i in range(1,5)],
+                                'Sample_Project': [row.Sample_Project for _ in range(4)]
+                                }
+                            newDf = pd.merge(pd.DataFrame(d), self.dataDf[self.dataDf['Sample_ID'] == row.Sample_ID].drop(columns=['index', 'Sample_Project']), on='Sample_ID')
+                            # Remove the old row by the name in the Sample_ID column
+                            self.dataDf = self.dataDf[self.dataDf['Sample_ID'] != row.Sample_ID]
+                            # Add the new rows
+                            self.dataDf =pd.concat([self.dataDf, newDf], ignore_index=True ,  axis=0)
+
+                else:
+                    for index_kit in self.dual_index_kits:
+                        if row.index in self.dual_index_kits[index_kit]['index_name'].tolist() and index_kit != 'TotalSeq':
+                            self.dataDf.loc[counter, 'index'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index(i7)'].values[0]
+                            self.dataDf.loc[counter, 'index2'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index2_workflow_b(i5)'].values[0]
+                        elif row.index in self.dual_index_kits[index_kit]['index_name'].tolist():
+                            self.dataDf.loc[counter, 'index'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index, 'index_sequence'].values[0]
+                            self.dataDf.loc[counter, 'index2'] = self.dual_index_kits[index_kit].loc[self.dual_index_kits[index_kit].index_name == row.index2, 'index_sequence'].values[0]
 
     def parse_data(self):
         # Check if all Sample_IDs are unique
-        if len(self.data['Sample_ID'].unique()) != len(self.data['Sample_ID']):
+        if len(self.dataDf['Sample_ID'].unique()) != len(self.dataDf['Sample_ID']):
             raise Exception('Sample_IDs are not unique!')
         # Check if all the indeces are unique
         indeces = list()
-        for row in self.data.itertuples():
-            indeces.append((row.index, row.index2))
+        for row in self.dataDf.itertuples():
+            if self.singleindex:
+                indeces.append(row.index)
+            else:
+                indeces.append((row.index, row.index2))
         if len(indeces) != len(set(indeces)):
             raise Exception('Indeces are not unique!')
 
     def write_flex(self):
         if self.flexfile is not None:
-            # Check if all the samples in the Sample_Source column exists in the self.data Sample_ID column
+            # Check if all the samples in the Sample_Source column exists in the self.dataDf Sample_ID column
             for row in self.flexfile.itertuples():
-                if row.Sample_Source not in self.data['Sample_ID'].tolist():
+                if row.Sample_Source not in self.dataDf['Sample_ID'].tolist():
                     raise Exception('Sample_Source: ' + row.Sample_Source + ' does not exist in the Sample_ID column of the samplesheet!')
             flex_columns = ['sample_id','probe_barcode_ids', 'Sample_Source']
             self.flex_header = '[10X_Flex_Settings]\n'
@@ -67,9 +90,12 @@ class singleCellSheet():
             self.flex_header = '[10X_Flex_Settings]\n'
         
     def write_data(self):
-        data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
-        self.data_header = "[BCLConvert_Data]\n"
-        self.data_header += self.data[data_columns].to_csv(index=False)
+        if self.singleindex:
+            data_columns = ['Sample_ID', 'index', 'Sample_Project']
+        else:
+            data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
+        self.dataDf_header = "[BCLConvert_Data]\n"
+        self.dataDf_header += self.dataDf[data_columns].to_csv(index=False)
 
     def write_header(self):
         self.header = '[Header]\n'
@@ -77,7 +103,12 @@ class singleCellSheet():
     
     def write_settings(self):
         self.settings = '[BCLConvert_Settings]\n'
-        self.settings += 'CreateFastqForIndexReads,0\n'
+        if self.singleindex:
+            self.settings += 'CreateFastqForIndexReads,1\n'
+            self.settings += 'TrimUMI,0\n'
+            self.settings += 'OverrideCycles,Y50;I8;U24;Y49\n'
+        else:
+            self.settings += 'CreateFastqForIndexReads,0\n'
     def write_adt(self):
         self.adt_header = ''
 
@@ -91,92 +122,60 @@ class singleCellSheet():
     def write_10X(self):
         tenx_columns = ['Sample_ID','Sample_Project', 'Sample_Species', 
                         'pipeline', 'agg', 'force', 'vdj',
-                        'sample_pair', 'nuclei', 'library'
+                        'sample_pair', 'nuclei', 'libtype'
                         ]
-        self.chemistries2pipelines()
-        tenx_columns = [x for x in tenx_columns if x in self.data.columns]
+        self.parse_libraries_pipelines()
+        tenx_columns = [x for x in tenx_columns if x in self.dataDf.columns]
         self.tenx_header = '[10X_Data]\n'
-        self.tenx_header += self.data[tenx_columns].to_csv(index=False)
+        self.tenx_header += self.dataDf[tenx_columns].drop_duplicates().to_csv(index=False)
 
 
-    def chemistries2pipelines(self):
-        chemistries_to_pipelines = {
-            '3GEX': 'scrna-10x',
-            '3CMO': 'scmulti-10x',
-            '3ADT': 'scciteseq-10x',
-            '3HTO': 'scciteseq-10x',
-            '3CRISPR': 'scciteseq-10x',
-            '5FB': 'seqonly',
-            '5TCR': 'scmulti-10x',
-            '5BCR': 'scmulti-10x',
-            'ATAC': 'scatac-10x',
-            'FLEX': 'scflex-10x',
-            'VISIUM': 'scvisium-10x'
+    def parse_libraries_pipelines(self):
+        # Parses the libraries and pipelines columns
+        # Checks if the values are allowed
+        # Check if the combinations are allowed
+        allowed_libraries = [
+            'gex', 'cmo', 'adt', 'hto', 'crispr', 'tcr', 'bcr', 'atac', 'flex', 'visium', 'flex'
+        ]
+        allowed_pipelines = [
+            'scrna-10x', 'scmulti-10x', 'scatac-10x', 'scciteseq-10x', 'scarc-10x', 'scvisium-10x', 'scflex-10x'
+        ]
+        allowed_combinations = {
+            'gex': ['scrna-10x', 'scmulti-10x',  'scarc-10x', 'scciteseq-10x'],
+            'cmo': ['scmulti-10x'],
+            'adt': ['scmulti-10x', 'scciteseq-10x'],
+            'hto': ['scmulti-10x', 'scciteseq-10x'],
+            'crispr': ['scmulti-10x', 'scciteseq-10x'],
+            'tcr': ['scmulti-10x'],
+            'bcr': ['scmulti-10x'],
+            'atac': ['scatac-10x', 'scarc-10x'],
+            'flex': ['scflex-10x'],
+            'visium': ['scvisium-10x']
         }
-        chemistries_to_libraries = {
-            '3GEX': 'gex',
-            '3CMO': 'cmo',
-            '3ADT': 'adt',
-            '3HTO': 'hto',
-            '3CRISPR': 'crispr',
-            '5FB': 'fb',
-            '5TCR': 'tcr',
-            '5BCR': 'bcr',
-            'ATAC': 'atac',
-            'FLEX': 'flex',
-            'VISIUM': 'visium'
-        }
-        # Add pipeline and library columns
-        self.data['pipeline'] = self.data['chemistry'].map(chemistries_to_pipelines)
-        self.data['library'] = self.data['chemistry'].map(chemistries_to_libraries)
-        self.data['vdj'] = ['n' for _ in range(len(self.data))]
-        if any(['5BCR'==_ for _ in self.data['chemistry']]) or any(['5TCR'==_ for _ in self.data['chemistry']]):
-            vdj_dictionary = {'5BCR': 'bcr', '5TCR': 'tcr', 'n': 'n'}
-            self.data['vdj'] = self.data['chemistry'].apply(lambda x: vdj_dictionary[x] if x in vdj_dictionary else 'n')
-        else:
-            self.data['vdj'] = None
-        
-        # Checks if the add on libraries are correctly defined
-        # Each sample should have a matching sample pair
-        # Each sample pair should have matching pipelines
-        # Its not beautiful but it's honest work
-        for row in self.data.itertuples():
-            if row.pipeline in ('scmulti-10x', 'scciteseq-10x'):
-                if 'sample_pair' not in self.data.columns:
-                    raise Exception('sample_pair column not defined in samplesheet file when using scmulti or scciteseq for sample: ' + row.Sample_ID)
-                if row.sample_pair == 'n':
-                    raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
-                else:
-                    projectDf = self.data[self.data['Sample_Project'] == row.Sample_Project]
-                    matching_sample_pairs = projectDf[projectDf['sample_pair'] == row.sample_pair]
-                    if len(matching_sample_pairs) <= 1:
-                        raise Exception('Matching sample pair is not defined for sample: ' + row.Sample_ID)
-                    pipeline = (lambda x: 'scmulti-10x' if 'scmulti-10x' in x else 'scciteseq-10x')(matching_sample_pairs.pipeline.values)
-                    self.data.at[row.Index, 'pipeline'] = pipeline
-                    matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
-            elif 'sample_pair' in self.data.columns and row.sample_pair != 'n':
-                projectDf = self.data[self.data['Sample_Project'] == row.Sample_Project]
-                matching_sample_pipelines = projectDf[projectDf['sample_pair'] == row.sample_pair].pipeline.values
-                if 'scmulti-10x' in matching_sample_pipelines:
-                    matching_sample_pipeline = 'scmulti-10x'
-                elif 'scciteseq-10x' in matching_sample_pipelines:
-                    matching_sample_pipeline = 'scciteseq-10x'
-                self.data.at[row.Index, 'pipeline'] = matching_sample_pipeline
-                
-        self.data.fillna('n', inplace=True)
-
+        # Check if library column and pipeline column consist of allowed values
+        if 'pipeline' not in self.dataDf.columns:
+            raise Exception('pipeline column not found in samplesheet!')
+        for row in self.dataDf.itertuples():
+            if 'libtype' in row._fields and row.libtype not in allowed_libraries:
+                raise Exception('libtype: ' + row.libtype + ' not allowed! Allowed libtypes are: ' + ', '.join(allowed_libraries))
+            if row.pipeline not in allowed_pipelines:
+                raise Exception('pipeline: ' + row.pipeline + ' not allowed! Allowed pipelines are: ' + ', '.join(allowed_pipelines))
+            if 'libtype' in row._fields and row.pipeline not in allowed_combinations[row.libtype]:
+                raise Exception('libtype: ' + row.libtype + ' not allowed for pipeline: ' + row.pipeline + '! Allowed libtypes for pipeline: ' + row.libtype + ' are: ' + ', '.join(allowed_combinations[row.libtype]))
+    def parse_pairs(self):
+        ...
     def join_headers(self):
-        self.data = self.header + self.settings + self.data_header + self.tenx_header + self.flex_header + self.feature_ref_header
+        self.dataDf = self.header + self.settings + self.dataDf_header + self.tenx_header + self.flex_header + self.feature_ref_header
 
 
 
 class illuminav2():
     def __init__(self, data_csv):
         # attempt to open data with pandas
-        self.data = pd.read_csv(data_csv)
+        self.dataDf = pd.read_csv(data_csv)
         self.indexes = pd.DataFrame()
         self.index_kit = ''
-        self.commas = self.data.shape[1] + 1
+        self.commas = self.dataDf.shape[1] + 1
         self.read1cycles = 151
         self.adapters = [
             'AGATCGGAAGAGCACACGTCTGAACTCCAGTCA', 
@@ -198,11 +197,11 @@ class illuminav2():
         # all other columns need to be removed
         # if these columns do not exist we fail
         valid_columns = ['Lane', 'Sample_ID', 'Sample_Project']
-        for col in self.data.columns:
+        for col in self.dataDf.columns:
             if col not in valid_columns:
-                self.data.drop(col, axis=1, inplace=True)
+                self.dataDf.drop(col, axis=1, inplace=True)
         # see that the number of columns is now 3
-        if self.data.shape[1] < 3:
+        if self.dataDf.shape[1] < 3:
             raise Exception('No valid columns found in input data!')
     
     def get_indexes(self, index_kit, RC=True, reference='data/index_table.csv'):
@@ -224,21 +223,21 @@ class illuminav2():
             indexes = select.loc[:,['Index', 'Index2_forward_read']]
         self.indexes = indexes
         
-        # reshape indexes by removing rows until there are as many rows as in self.data
-        self.indexes.drop(self.indexes.index[self.data.shape[0]:], inplace=True)
+        # reshape indexes by removing rows until there are as many rows as in self.dataDf
+        self.indexes.drop(self.indexes.index[self.dataDf.shape[0]:], inplace=True)
        
         # reset the index
         self.indexes.reset_index(drop=True, inplace=True)
         # add the indexes to the data
         print(indexes)
-        self.data['index'] = self.indexes.loc[:,'Index']
+        self.dataDf['index'] = self.indexes.loc[:,'Index']
         # variable column name!
-        self.data['index2'] = self.indexes.iloc[:,1]
-        print(self.data)
+        self.dataDf['index2'] = self.indexes.iloc[:,1]
+        print(self.dataDf)
 
     
     def make_full_string(self):
-        dstr = ','.join(re.split(r'[ \t]+', (self.data.to_string(index=False))))
+        dstr = ','.join(re.split(r'[ \t]+', (self.dataDf.to_string(index=False))))
         # remove leading commas
         dstr = re.sub(r'\n,','\n',dstr)
         # remove first comma

@@ -5,6 +5,8 @@ from samplesheet import illuminav2, singleCellSheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
 import pandas as pd
+import sys
+import traceback
 from pprint import pprint
 app = Flask(__name__)
 
@@ -16,6 +18,8 @@ app.wsgi_app = DispatcherMiddleware(
 
 @app.errorhandler(Exception)
 def handle_error(e):
+    etype, value, tb = sys.exc_info()
+    print(traceback.print_exception(etype, value, tb))
     return render_template("error.html", e=e), 500
 
 @app.route('/', methods=['GET', 'POST'])
@@ -41,9 +45,15 @@ def upload():
 def upload_singlecell():
     if request.method == 'POST':
 
+        if request.form.get('singleindex') == 'true':
+            singleindex = True
+            samplesheet_columns = ['Sample_ID','index','Sample_Project']
+        else:
+            singleindex = False
+            samplesheet_columns = ['Sample_ID', 'Sample_Project', 'index', 'index2']
         # Process the sample info configuration
         samplesheet_info = combine_filestreams(request.files.getlist('samplesheets'),
-                            ['Sample_ID', 'Sample_Project', 'index', 'index2']
+                            samplesheet_columns
                             )
         if 'pipeline' not in samplesheet_info.columns:
             samplesheet_info['pipeline'] = 'seqonly'
@@ -66,7 +76,7 @@ def upload_singlecell():
                             ['id','name','read','pattern','sequence','feature_type','Sample_Project']
                             )
             
-        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref)
+        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref, singleindex)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -88,9 +98,9 @@ def upload_lab_report():
         return render_template('lab_report.html')
     
 
-def generate_singlecell_sheet(csv_data, flexfile, feature_ref):
-    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref)
-    samplesheet = samplesheet.data
+def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
+    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref, singleindex)
+    samplesheet = samplesheet.dataDf
     return samplesheet
 
 def generate_genomics_sheet(csv_data, form):
