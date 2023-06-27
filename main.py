@@ -73,7 +73,7 @@ def upload_singlecell():
             feature_ref = None
         else:
             feature_ref = combine_filestreams(request.files.getlist('feature_ref'),
-                            ['id','name','read','pattern','sequence','feature_type','Sample_Project']
+                            ['id','name','read','pattern','sequence','feature_type','Sample_ID']
                             )
             
         samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref, singleindex)
