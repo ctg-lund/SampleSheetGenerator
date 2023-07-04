@@ -14,7 +14,7 @@ def abspath(path):
     return normpath(path)
 
 def read_samplesheets():
-    samplesheet = pd.read_csv(abspath('data/singlecell/samplesheet.csv'))
+    samplesheet = pd.read_csv(abspath('data/singlecell/SampleSheet.csv'))
     feature_ref = pd.read_csv(abspath('data/singlecell/feature_ref.csv'))
     flex_config = pd.read_csv(abspath('data/singlecell/flex_config.csv'))
     with open(abspath('data/singlecell/ctg_samplesheet.csv')) as f: 
