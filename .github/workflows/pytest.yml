@@ -24,6 +24,6 @@ jobs:
           pip install ruff pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
-        env: PROJECT_BASEPATH: ${GITHUB_WORKSPACE}
         run: |
           pytest test.py
+        env: PROJECT_BASEPATH: ${GITHUB_WORKSPACE}
