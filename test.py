@@ -9,7 +9,7 @@ def read_samplesheets():
         ctg_samplesheet = f.read()
     return samplesheet, feature_ref, flex_config, ctg_samplesheet
 
-def test():
+def test_samplesheet():
     ss, fr, fc, ctg_samplesheet = read_samplesheets()
     samplesheet = singleCellSheet(ss, fc, fr, False) 
     assert samplesheet.dataDf == ctg_samplesheet
