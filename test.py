@@ -17,7 +17,7 @@ def read_samplesheets():
     samplesheet = pd.read_csv(abspath('data/singlecell/SampleSheet.csv'))
     feature_ref = pd.read_csv(abspath('data/singlecell/feature_ref.csv'))
     flex_config = pd.read_csv(abspath('data/singlecell/flex_config.csv'))
-    with open(abspath('data/singlecell/ctg_samplesheet.csv')) as f: 
+    with open(abspath('data/singlecell/CTG_SampleSheet.csv')) as f: 
         ctg_samplesheet = f.read()
     return samplesheet, feature_ref, flex_config, ctg_samplesheet
 
