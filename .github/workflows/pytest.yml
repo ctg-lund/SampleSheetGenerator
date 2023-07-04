@@ -3,15 +3,14 @@ name: Run Python tests
 on:
   pull_request:
     branches: [ "master" ]
-
+env: 
+  PROJECT_BASEPATH: ${{ env.GITHUB_WORKSPACE }}
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11"]
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -26,5 +25,3 @@ jobs:
       - name: Test with pytest
         run: |
           pytest test.py
-        env: PROJECT_BASEPATH: ${{ env.GITHUB_WORKSPACE }}
-        
