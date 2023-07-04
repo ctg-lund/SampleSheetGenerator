@@ -1,7 +1,0 @@
-Sample_ID,index,index2,Sample_Project,Sample_Species,force,agg,nuclei,libtype,sample_pair,pipeline
-Test_7,SI-TT-B6,SI-TT-B1,2023_002,human,n,n,n,gex,n,scrna-10x
-Test_8,SI-TT-B2,SI-TT-B2,2023_002,human,n,n,n,gex,n,scrna-10x
-Test_9,SI-TT-B3,SI-TT-B3,2023_002,human,n,n,n,adt,1,scmulti-10x
-Test_10,SI-TT-B4,SI-TT-B4,2023_002,human,n,n,n,gex,1,scmulti-10x
-Test_11,SI-TT-B5,SI-TT-B5,2023_002,human,n,n,n,gex,n,scrna-10x
-Test_12,SI-TT-B6,SI-TT-B6,2023_002,human,n,n,n,bcr,1,scmulti-10x

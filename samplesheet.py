@@ -5,7 +5,7 @@ class singleCellSheet():
     def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool):
         # attempt to open data with pandas
         self.singleindex = singleindex
-        self.dataDf = pd.read_csv(data_csv, index_col=False)
+        self.dataDf = data_csv
         self.flexfile = flexfile
         self.feature_ref = feature_ref
         self.write_settings()
@@ -39,7 +39,6 @@ class singleCellSheet():
 
 
     def parse_indeces(self):
-            self.dataDf.drop('Unnamed: 0', axis=1, inplace=True)
             for counter, row in enumerate(self.dataDf.itertuples()):
                 if self.singleindex:
                     for index_kit in self.single_index_kits:

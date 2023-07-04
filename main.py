@@ -76,7 +76,7 @@ def upload_singlecell():
                             ['id','name','read','pattern','sequence','feature_type','Sample_ID']
                             )
             
-        samplesheet = generate_singlecell_sheet(samplesheet_info.to_csv(), flexdata, feature_ref, singleindex)
+        samplesheet = generate_singlecell_sheet(samplesheet_info, flexdata, feature_ref, singleindex)
         response = make_response(samplesheet)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=CTG_SampleSheet.csv'
@@ -99,7 +99,7 @@ def upload_lab_report():
     
 
 def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
-    samplesheet = singleCellSheet(StringIO(csv_data), flexfile, feature_ref, singleindex)
+    samplesheet = singleCellSheet(csv_data, flexfile, feature_ref, singleindex)
     samplesheet = samplesheet.dataDf
     return samplesheet
 
