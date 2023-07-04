@@ -91,7 +91,8 @@ def upload_lab_report():
         # the uploaded file is a single pdf
         lab_report = request.files['lab_report']
         # Do something with the uploaded PDF file...
-
+        response = 'Hippity hoppity, mattis need to finish this property'
+        # under construction
         return response
     
     else:
