@@ -1,4 +1,0 @@
-id,name,read,pattern,sequence,feature_type,Sample_ID
-ADT_C0014,HuMs.CD11b,R2,5PNNNNNNNNNN(BC),TGAAGGCTCATTTGT,Antibody Capture,Test_1|Test_2
-ADT_C0073,HuMs.CD44,R2,5PNNNNNNNNNN(BC),TGGCTTCAGGTCCTA,Antibody Capture,Test_1
-ADT_C0103,HuMs.CD45R_B220,R2,5P(BC),CCTACACCTCATAAT,Antibody Capture,Test_2
