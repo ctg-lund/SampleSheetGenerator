@@ -3,8 +3,6 @@ name: Run Python tests
 on:
   pull_request:
     branches: [ "master" ]
-env: 
-  PROJECT_BASEPATH: ${GITHUB_WORKSPACE}
 jobs:
   build:
     runs-on: ubuntu-latest
