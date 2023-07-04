@@ -1,10 +1,12 @@
 from samplesheet import singleCellSheet
 import pandas as pd
+from os import environ
 
 def read_samplesheets():
-    samplesheet = pd.read_csv('data/singlecell/samplesheet.csv')
-    feature_ref = pd.read_csv('data/singlecell/feature_ref.csv')
-    flex_config = pd.read_csv('data/singlecell/flex_config.csv')
+    basepath = environ.get('PROJECT_BASEPATH', '')
+    samplesheet = pd.read_csv(f'{basepath}data/singlecell/samplesheet.csv')
+    feature_ref = pd.read_csv(f'{basepath}data/singlecell/feature_ref.csv')
+    flex_config = pd.read_csv(f'{basepath}data/singlecell/flex_config.csv')
     with open('data/singlecell/ctg_samplesheet.csv') as f: 
         ctg_samplesheet = f.read()
     return samplesheet, feature_ref, flex_config, ctg_samplesheet
