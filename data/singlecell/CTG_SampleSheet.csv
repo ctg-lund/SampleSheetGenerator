@@ -1,5 +1,5 @@
 [Header]
-FileFormatVersion,2
+FileFormatVersion,1
 [BCLConvert_Settings]
 CreateFastqForIndexReads,0
 [BCLConvert_Data]
