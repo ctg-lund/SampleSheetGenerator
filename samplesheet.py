@@ -100,7 +100,7 @@ class singleCellSheet():
 
     def write_header(self):
         self.header = '[Header]\n'
-        self.header += 'FileFormatVersion,2\n'
+        self.header += 'FileFormatVersion,1\n'
     
     def write_settings(self):
         self.settings = '[BCLConvert_Settings]\n'
