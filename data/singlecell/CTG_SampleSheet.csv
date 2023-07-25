@@ -53,7 +53,7 @@ sample_id,probe_barcode_ids,Sample_Source
 sample1,BC001|BC002,sample-7
 sample1,BC003|BC004,sample-8
 [FeatureReference_Data]
-id,name,read,pattern,sequence,feature_type,Sample_ID
+id,name,read,pattern,sequence,feature_type,Sample_Source
 ADT_C0014,HuMs.CD11b,R2,5PNNNNNNNNNN(BC),TGAAGGCTCATTTGT,ADT,sample-4|sample-7
 ADT_C0073,HuMs.CD44,R2,5PNNNNNNNNNN(BC),TGGCTTCAGGTCCTA,ADT,sample-4|sample-7
 ADT_C0103,HuMs.CD45R_B220,R2,5P(BC),CCTACACCTCATAAT,ADT,sample-4|sample-7

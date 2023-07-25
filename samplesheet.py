@@ -123,11 +123,11 @@ class singleCellSheet():
         if self.feature_ref is not None:
             # Check if all the samples in the Sample_ID column exists in the self.dataDf Sample_ID column
             for row in self.feature_ref.itertuples():
-                samples = row.Sample_ID.split('|')
+                samples = row.Sample_Source.split('|')
                 for sample in samples:
                     if sample not in self.dataDf['Sample_ID'].tolist():
-                        raise Exception('Sample_ID: ' + sample + ' from the feature reference does not exist in the Sample_ID column of the samplesheet!')
-            feature_ref_columns = ['id','name','read','pattern','sequence','feature_type','Sample_ID']
+                        raise Exception('Sample_Source: ' + sample + ' from the feature reference does not exist in the Sample_Source column of the samplesheet!')
+            feature_ref_columns = ['id','name','read','pattern','sequence','feature_type','Sample_Source']
             self.feature_ref_header = '[FeatureReference_Data]\n'
             self.feature_ref_header = self.feature_ref_header + self.feature_ref[feature_ref_columns].to_csv(index=False)
     def write_10X(self):
