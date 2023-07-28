@@ -13,15 +13,19 @@ def abspath(path):
         path = join(cwd, path)
     return normpath(path)
 
-def read_samplesheets():
-    samplesheet = pd.read_csv(abspath('data/singlecell/SampleSheet.csv'))
-    feature_ref = pd.read_csv(abspath('data/singlecell/feature_ref.csv'))
-    flex_config = pd.read_csv(abspath('data/singlecell/flex_config.csv'))
-    with open(abspath('data/singlecell/CTG_SampleSheet.csv')) as f: 
+def read_samplesheets(samplesheet:str, feature_ref:str, flex_config:str, ctg_samplesheet: str) -> tuple:
+    samplesheet = pd.read_csv(abspath(samplesheet))
+    feature_ref = pd.read_csv(abspath(feature_ref))
+    flex_config = pd.read_csv(abspath(flex_config))
+    with open(abspath(ctg_samplesheet)) as f:
         ctg_samplesheet = f.read()
     return samplesheet, feature_ref, flex_config, ctg_samplesheet
 
 def test_samplesheet():
-    ss, fr, fc, ctg_samplesheet = read_samplesheets()
+    ss, fr, fc, ctg_samplesheet = read_samplesheets('data/singlecell/SampleSheet.csv', 
+                                                    'data/singlecell/feature_ref.csv', 
+                                                    'data/singlecell/flex_config.csv',
+                                                    'data/singlecell/CTG_SampleSheet.csv'
+                                                    )
     samplesheet = singleCellSheet(ss, fc, fr, False) 
     assert samplesheet.dataDf == ctg_samplesheet
