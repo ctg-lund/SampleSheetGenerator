@@ -95,7 +95,7 @@ class singleCellSheet():
             data_columns = ['Sample_ID', 'index', 'Sample_Project']
         else:
             data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
-        self.dataDf_header = "[BCLConvert_Data]\n"
+        self.dataDf_header = "[Data]\n"
         self.dataDf_header += self.dataDf[data_columns].to_csv(index=False)
 
     def write_header(self):
@@ -103,7 +103,7 @@ class singleCellSheet():
         self.header += 'FileFormatVersion,1\n'
     
     def write_settings(self):
-        self.settings = '[BCLConvert_Settings]\n'
+        self.settings = '[Settings]\n'
         if self.singleindex:
             self.settings += 'CreateFastqForIndexReads,1\n'
             self.settings += 'TrimUMI,0\n'

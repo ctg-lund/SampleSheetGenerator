@@ -1,8 +1,8 @@
 [Header]
 FileFormatVersion,1
-[BCLConvert_Settings]
+[Settings]
 CreateFastqForIndexReads,0
-[BCLConvert_Data]
+[Data]
 Sample_ID,index,index2,Sample_Project
 sample-1,GTAACATGCG,AGGTAACACT,project1
 sample-2,GTGGATCAAA,CAGGGTTGGC,project1
