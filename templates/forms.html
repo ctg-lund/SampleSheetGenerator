@@ -5,55 +5,26 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Fill in these forms</h1>
-  <form method="post" enctype="multipart/form-data">
+  <h1>Check all that applies</h1>
+  <form method="POST" enctype="multipart/form-data">
     <div class="form-group">
-        <label for="form1">Read Structure</label>
-        <input type="text" class="form-control" id="form1" name="readstructure" value="150-8-8-150">
-      </div>
-    <div class="form-group">
-        <label for="select">Select a pipeline</label>
-        <select class="form-control" id="select" name="pipeline">
-          <option value="SeqOnly">SeqOnly</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="select">Select a lab worker</label>
-        <select class="form-control" id="select" name="labworker">
-          <option value="Carlos">Carlos</option>
-          <option value="Ewa">Ewa</option>
-          <option value="Annica">Annica</option>
-          <option value="Julia">Julia</option>
-          <option value="Liesl">Liesl</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="select">Select a BNF worker</label>
-        <select class="form-control" id="select" name="bnfworker">
-          <option value="Mattis">Mattis</option>
-          <option value="Jacob">Jacob</option>
-        </select>
-    </div>
-    <div class="form-group">
-      <label for="select">Select which sequencer</label>
-      <select class="form-control" id="select" name="sequencer">
-        <option value="Nextseq 2000">Nextseq</option>
-        <option value="Miseq">Miseq</option>
-        <option value="Novaseq">Novaseq</option>
-      </select>
+      <label for="SeqOnly">SeqOnly</label>
+      <input type="checkbox" id="checkbox_seqonly" name="checkbox_seqonly" checked>
+      <div></div>
   </div>
-  <div class="form-group">
-    <label for="select">Select index kit</label>
-    <select class="form-control" id="select" name="indexkit">
-      {% for indexkit in index_kits %}
-      <option value="{{indexkit}}">{{indexkit}}</option>
-      {% endfor %}
-    </select>
-</div>
     <div class="form-group">
-        <label for="csvfile">Upload the csv file from the customer</label>
+        <label for="select">Select which sequencer</label>
+        <select class="form-control" id="select" name="sequencer">
+          <option value="Nextseq 2000">Nextseq2000</option>
+          <option value="Miseq">Miseq</option>
+          <option value="Novaseq">Novaseq6000</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="csvfile">Upload the CSV</label>
         <input type="file" class="form-control-file" id="csvfile" name="csvfile">
     </div>
+
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 {% endblock %}
