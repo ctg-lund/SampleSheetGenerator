@@ -141,6 +141,9 @@ def generate_genomics_sheet(csv_data, form):
         samplesheet.fastqc = 'Yes'
     if form.get('checkbox_fastscreen'):
         samplesheet.fastscreen = 'Yes'
+    # RC
+    if form.get('checkbox_rc'):
+        samplesheet.rc_indexes() 
     # generate samplesheet
     ss_string : str = ''
     if form.get("checkbox_seqonly"):

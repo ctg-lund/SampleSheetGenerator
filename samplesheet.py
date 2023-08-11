@@ -501,6 +501,18 @@ class pep2samplesheet:
         ss_1_string += str_df
         return ss_1_string
     
+    def reverse_complement(self, nucleotide_string):
+        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        reverse = nucleotide_string[::-1]
+        reverse_complement = ''.join(complement.get(base, base) for base in reverse)
+        return reverse_complement
+    
+    def rc_indexes(self):
+        """
+        Use reverse_complement() on indexes in self.df['index2]
+        """
+        self.df['index2'] = self.df['index2'].apply(self.reverse_complement)
+    
     def write_to_file(self, file):
         """
         Write the samplesheet to a file
