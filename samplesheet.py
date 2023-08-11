@@ -407,3 +407,10 @@ AdapterRead2,{self.adapters[1]},,
         self.make_full_string()
         with open(file, "wb") as f:
             f.write(self.string.encode("ascii", "ignore"))
+
+
+class pep2samplesheet:
+    """
+    The PEP is published here: <github link>
+    
+    """

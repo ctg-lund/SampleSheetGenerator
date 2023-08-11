@@ -1,0 +1,33 @@
+pep_version: 2.1.0
+sample_table: samples.csv
+name: seqonly
+description: Prototype processing PEP for sequencing center
+properties:
+  samples:
+    type: array
+    items:
+      type: object
+      properties:
+        project_id:
+          type: string
+          description: The serial number of the project given in the form YYYY_XXX
+          pattern: ^\\d{4}_\\d{3}$
+        sample_name:
+          type: string
+          description: The sample name A-Z,a-z, _ and - only! Pep specification index column. Don't change this name!
+          pattern: ^[0-9A-Za-z_-]+$
+        index:
+          type: string
+          description: The nucleotide sequence of the index
+          pattern: ^[ATCG]+$
+        index2:
+          type: string
+          description: The nucleotide sequence of the second index
+          pattern: ^[ATCG]+$
+      required: 
+       - project_id
+       - sample_name
+       - index
+       - index2
+required: 
+ - samples
