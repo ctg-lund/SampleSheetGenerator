@@ -126,9 +126,25 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
 
 def generate_genomics_sheet(csv_data, form):
     samplesheet = pep2samplesheet(StringIO(csv_data))
+    # set params
     samplesheet.sequencer = form.get("sequencer")
+    if form.get('checkbox_fastq'):
+        samplesheet.fastq = 'Yes'
+    if form.get('checkbox_bcl'):
+        samplesheet.bcl = 'Yes'
+    if form.get('checkbox_bam'):
+        samplesheet.bam = 'Yes'
+    if form.get('checkbox_vcf'):
+        samplesheet.vcf = 'Yes'
+        raise Exception("VCF is not supported yet")
+    if form.get('checkbox_fastqc'):
+        samplesheet.fastqc = 'Yes'
+    if form.get('checkbox_fastscreen'):
+        samplesheet.fastscreen = 'Yes'
+    # generate samplesheet
     ss_string : str = ''
     if form.get("checkbox_seqonly"):
+        samplesheet.seqonly_project = 'Yes'
         ss_string = samplesheet.seq_only()
 
     return ss_string

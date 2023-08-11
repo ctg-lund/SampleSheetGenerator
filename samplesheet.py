@@ -421,7 +421,15 @@ class pep2samplesheet:
         # init data
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
+        # Params
         self.sequencer = 'Unknown'
+        self.seqonly_project = 'No'
+        self.fastq = 'No'
+        self.bam = 'No'
+        self.bcl = 'No'
+        self.vcf = 'No'
+        self.fastqc = 'No'
+        self.fastqscreen = 'No'
         # init patterns
         self.project_id_pattern = re.compile(r'^\d{4}_\d{3}$')
         self.sample_name_pattern = re.compile(r'^[0-9A-Za-z_-]+$')
@@ -465,10 +473,26 @@ class pep2samplesheet:
         ss_1_string = "[Header]\nFileFormatVersion,1,\n"
         # sequencer
         ss_1_string += f"Sequencer,{self.sequencer},\n"
+        # seqonly project
+        ss_1_string += f"SeqOnlyProject,{self.seqonly_project},\n"
+        # fastq
+        ss_1_string += f"Fastq,{self.fastq},\n"
+        # bam
+        ss_1_string += f"Bam,{self.bam},\n"
+        # bcl
+        ss_1_string += f"Bcl,{self.bcl},\n"
+        # vcf
+        ss_1_string += f"Vcf,{self.vcf},\n"
+        # fastqc
+        ss_1_string += f"Fastqc,{self.fastqc},\n"
+        # fastqscreen
+        ss_1_string += f"Fastqscreen,{self.fastqscreen},\n"
         # data
         ss_1_string += "\n[Data]\n"
         # rename columns
         df = self.df.rename(columns=self.column_map)
+        # headers
+        ss_1_string += ",".join(df.columns) + "\n"
         # Convert the dataframe to a string
         str_df = df.apply(lambda x: ','.join(x.astype(str)), axis=1)
         # Join the rows with a newline
