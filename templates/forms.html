@@ -7,10 +7,32 @@
 {% block content %}
   <h1>Check all that applies</h1>
   <form method="POST" enctype="multipart/form-data">
+    <h2>Workflow</h2>
     <div class="form-group">
       <label for="SeqOnly">SeqOnly</label>
       <input type="checkbox" id="checkbox_seqonly" name="checkbox_seqonly" checked>
       <div></div>
+      <h2>Data Deliverables</h2>
+      <div></div>
+      <label for="BCL">BCL</label>
+      <input type="checkbox" id="checkbox_bcl" name="checkbox_bcl">
+      <div></div>
+      <label for="Fastq">Fastq</label>
+      <input type="checkbox" id="checkbox_fastq" name="checkbox_fastq" checked>
+      <div></div>
+      <label for="Bam">Bam</label>
+      <input type="checkbox" id="checkbox_bam" name="checkbox_bam">
+      <div></div>
+      <label for="Vcf">Vcf</label>
+      <input type="checkbox" id="checkbox_vcf" name="checkbox_vcf">
+      <div></div>
+      <h2>Quality Control deliverables</h2>
+      <div></div>
+      <label for="Fastqc">Fastqc</label>
+      <input type="checkbox" id="checkbox_fastqc" name="checkbox_fastqc" checked>
+      <label for="Fastqscreen">Fastqscreen</label>
+      <input type="checkbox" id="checkbox_fastqscreen" name="checkbox_fastqscreen">
+      
   </div>
     <div class="form-group">
         <label for="select">Select which sequencer</label>
