@@ -433,49 +433,49 @@ class pep2samplesheet:
         # validate the PEP
         self.validate()
 
-        def validate(self):
-            """
-            Validate the PEP.
-            Eventually this could be done with eidos
-            but the regex patterns in the yaml can just
-            be copied and validated directly
-            without adding another dependency.
+    def validate(self):
+        """
+        Validate the PEP.
+        Eventually this could be done with eidos
+        but the regex patterns in the yaml can just
+        be copied and validated directly
+        without adding another dependency.
 
-            This function will raise an exception if
-            the PEP is invalid.
+        This function will raise an exception if
+        the PEP is invalid.
 
-            Returns nothing.
-            """
-            
-            if not self.df['project_id'].str.match(self.project_id_pattern).all():
-                raise Exception('Invalid project_id found in PEP!')
-            if not self.df['sample_name'].str.match(self.sample_name_pattern).all(): 
-                raise Exception('Invalid sample_name found in PEP!')
-            if not self.df['index'].str.match(self.index_pattern).all():
-                raise Exception('Invalid index found in PEP!')
-            
+        Returns nothing.
+        """
         
-        def seq_only(self):
-            """
-            Assemble dataframe and illumina v1 static string
-            return a string that can be written to a file
-            """
-            ss_1_string = """[Header]
-            FileFormatVersion,1,
-            [Data]
-            """
-            # rename columns
-            df = self.df.rename(columns=self.column_map)
-            # convert to string and append to ss_1_string
-            ss_1_string += df.to_string(index=False)
-            return ss_1_string
+        if not self.df['project_id'].str.match(self.project_id_pattern).all():
+            raise Exception('Invalid project_id found in PEP!')
+        if not self.df['sample_name'].str.match(self.sample_name_pattern).all(): 
+            raise Exception('Invalid sample_name found in PEP!')
+        if not self.df['index'].str.match(self.index_pattern).all():
+            raise Exception('Invalid index found in PEP!')
         
-        def write_to_file(self, file):
-            """
-            Write the samplesheet to a file
-            returns nothing
-            """
-            ss_1_string = self.seq_only()
-            with open(file, 'wb') as f:
-                f.write(ss_1_string.encode('ascii', 'ignore'))
-        
+    
+    def seq_only(self):
+        """
+        Assemble dataframe and illumina v1 static string
+        return a string that can be written to a file
+        """
+        ss_1_string = """[Header]
+        FileFormatVersion,1,
+        [Data]
+        """
+        # rename columns
+        df = self.df.rename(columns=self.column_map)
+        # convert to string and append to ss_1_string
+        ss_1_string += df.to_string(index=False)
+        return ss_1_string
+    
+    def write_to_file(self, file):
+        """
+        Write the samplesheet to a file
+        returns nothing
+        """
+        ss_1_string = self.seq_only()
+        with open(file, 'wb') as f:
+            f.write(ss_1_string.encode('ascii', 'ignore'))
+    

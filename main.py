@@ -125,21 +125,13 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
 
 
 def generate_genomics_sheet(csv_data, form):
-    samplesheet = illuminav2(StringIO(csv_data))
-    samplesheet.sequencer = form["sequencer"]
-    samplesheet.read1cycles = form["readstructure"].split("-")[0]
-    samplesheet.pipeline = form["pipeline"]
-    samplesheet.lab_worker = form["labworker"]
-    samplesheet.bnf_worker = form["bnfworker"]
-    if form["sequencer"] == "Novaseq":
-        RC = True
-    else:
-        RC = False
+    samplesheet = pep2samplesheet(StringIO(csv_data))
+    ss_string : str = ''
+    if form.get("checkbox_seqonly"):
+        ss_string = samplesheet.seq_only()
 
-    samplesheet.get_indexes(index_kit=form["indexkit"], RC=RC)
-    samplesheet.make_full_string()
-    samplesheet = samplesheet.string
-    return samplesheet
+    return ss_string
+
 
 
 def combine_filestreams(filestreams, allowed_columns):
