@@ -421,6 +421,7 @@ class pep2samplesheet:
         # init data
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
+        self.sequencer = 'Unknown'
         # init patterns
         self.project_id_pattern = re.compile(r'^\d{4}_\d{3}$')
         self.sample_name_pattern = re.compile(r'^[0-9A-Za-z_-]+$')
@@ -460,7 +461,12 @@ class pep2samplesheet:
         Assemble dataframe and illumina v1 static string
         return a string that can be written to a file
         """
-        ss_1_string = "[Header]\nFileFormatVersion,1,\n[Data]\n"
+        # header
+        ss_1_string = "[Header]\nFileFormatVersion,1,\n"
+        # sequencer
+        ss_1_string += f"Sequencer,{self.sequencer},\n"
+        # data
+        ss_1_string += "\n[Data]\n"
         # rename columns
         df = self.df.rename(columns=self.column_map)
         # Convert the dataframe to a string

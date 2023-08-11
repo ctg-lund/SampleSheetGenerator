@@ -126,6 +126,7 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
 
 def generate_genomics_sheet(csv_data, form):
     samplesheet = pep2samplesheet(StringIO(csv_data))
+    samplesheet.sequencer = form.get("sequencer")
     ss_string : str = ''
     if form.get("checkbox_seqonly"):
         ss_string = samplesheet.seq_only()
