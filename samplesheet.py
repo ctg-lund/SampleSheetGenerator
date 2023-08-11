@@ -460,14 +460,15 @@ class pep2samplesheet:
         Assemble dataframe and illumina v1 static string
         return a string that can be written to a file
         """
-        ss_1_string = """[Header]
-        FileFormatVersion,1,
-        [Data]
-        """
+        ss_1_string = "[Header]\nFileFormatVersion,1,\n[Data]\n"
         # rename columns
         df = self.df.rename(columns=self.column_map)
-        # convert to string and append to ss_1_string
-        ss_1_string += df.to_string(index=False)
+        # Convert the dataframe to a string
+        str_df = df.apply(lambda x: ','.join(x.astype(str)), axis=1)
+        # Join the rows with a newline
+        str_df = '\n'.join(str_df)
+        # Append the string to the samplesheet
+        ss_1_string += str_df
         return ss_1_string
     
     def write_to_file(self, file):

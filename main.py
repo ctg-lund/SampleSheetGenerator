@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, make_response, send_file
 from io import StringIO
-from samplesheet import illuminav2, singleCellSheet, pep2samplesheet
+from samplesheet import singleCellSheet, pep2samplesheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
 import pandas as pd
