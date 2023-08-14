@@ -407,3 +407,118 @@ AdapterRead2,{self.adapters[1]},,
         self.make_full_string()
         with open(file, "wb") as f:
             f.write(self.string.encode("ascii", "ignore"))
+
+
+class pep2samplesheet:
+    """
+    The PEP is published here: <github link>
+    Right now the PEP is included in this project until we decide on how to host it.
+    This class will simply take a PEP and turn it into a samplesheet.
+    As decided we will create Illumina v1 samplesheets going forward
+    due to the restrictiveness of v2
+    """
+    def __init__(self, data_csv):
+        # init data
+        self.data = data_csv
+        self.df = pd.read_csv(data_csv)
+        # Params
+        self.sequencer = 'Unknown'
+        self.seqonly_project = 'No'
+        self.fastq = 'No'
+        self.bam = 'No'
+        self.bcl = 'No'
+        self.vcf = 'No'
+        self.fastqc = 'No'
+        self.fastqscreen = 'No'
+        # init patterns
+        self.project_id_pattern = re.compile(r'^\d{4}_\d{3}$')
+        self.sample_name_pattern = re.compile(r'^[0-9A-Za-z_-]+$')
+        self.index_pattern = re.compile(r'^[ATCG]+$')
+        # map PEP columns to samplesheet columns
+        self.column_map : dict = {
+            'project_id': 'Sample_Project',
+            'sample_name': 'Sample_ID',
+        }
+        # validate the PEP
+        self.validate()
+
+    def validate(self):
+        """
+        Validate the PEP.
+        Eventually this could be done with eidos
+        but the regex patterns in the yaml can just
+        be copied and validated directly
+        without adding another dependency.
+
+        This function will raise an exception if
+        the PEP is invalid.
+
+        Returns nothing.
+        """
+        
+        if not self.df['project_id'].str.match(self.project_id_pattern).all():
+            raise Exception('Invalid project_id found in PEP!')
+        if not self.df['sample_name'].str.match(self.sample_name_pattern).all(): 
+            raise Exception('Invalid sample_name found in PEP!')
+        if not self.df['index'].str.match(self.index_pattern).all():
+            raise Exception('Invalid index found in PEP!')
+        
+    
+    def seq_only(self):
+        """
+        Assemble dataframe and illumina v1 static string
+        return a string that can be written to a file
+        """
+        # header
+        ss_1_string = "[Header]\nFileFormatVersion,1,\n"
+        # sequencer
+        ss_1_string += f"Sequencer,{self.sequencer},\n"
+        # seqonly project
+        ss_1_string += f"SeqOnlyProject,{self.seqonly_project},\n"
+        # fastq
+        ss_1_string += f"Fastq,{self.fastq},\n"
+        # bam
+        ss_1_string += f"Bam,{self.bam},\n"
+        # bcl
+        ss_1_string += f"Bcl,{self.bcl},\n"
+        # vcf
+        ss_1_string += f"Vcf,{self.vcf},\n"
+        # fastqc
+        ss_1_string += f"Fastqc,{self.fastqc},\n"
+        # fastqscreen
+        ss_1_string += f"Fastqscreen,{self.fastqscreen},\n"
+        # data
+        ss_1_string += "\n[Data]\n"
+        # rename columns
+        df = self.df.rename(columns=self.column_map)
+        # headers
+        ss_1_string += ",".join(df.columns) + "\n"
+        # Convert the dataframe to a string
+        str_df = df.apply(lambda x: ','.join(x.astype(str)), axis=1)
+        # Join the rows with a newline
+        str_df = '\n'.join(str_df)
+        # Append the string to the samplesheet
+        ss_1_string += str_df
+        return ss_1_string
+    
+    def reverse_complement(self, nucleotide_string):
+        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        reverse = nucleotide_string[::-1]
+        reverse_complement = ''.join(complement.get(base, base) for base in reverse)
+        return reverse_complement
+    
+    def rc_indexes(self):
+        """
+        Use reverse_complement() on indexes in self.df['index2]
+        """
+        self.df['index2'] = self.df['index2'].apply(self.reverse_complement)
+    
+    def write_to_file(self, file):
+        """
+        Write the samplesheet to a file
+        returns nothing
+        """
+        ss_1_string = self.seq_only()
+        with open(file, 'wb') as f:
+            f.write(ss_1_string.encode('ascii', 'ignore'))
+    

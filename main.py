@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, make_response, send_file
-import csv
 from io import StringIO
-from samplesheet import illuminav2, singleCellSheet
+from samplesheet import singleCellSheet, pep2samplesheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
 import pandas as pd
@@ -126,21 +125,33 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
 
 
 def generate_genomics_sheet(csv_data, form):
-    samplesheet = illuminav2(StringIO(csv_data))
-    samplesheet.sequencer = form["sequencer"]
-    samplesheet.read1cycles = form["readstructure"].split("-")[0]
-    samplesheet.pipeline = form["pipeline"]
-    samplesheet.lab_worker = form["labworker"]
-    samplesheet.bnf_worker = form["bnfworker"]
-    if form["sequencer"] == "Novaseq":
-        RC = True
-    else:
-        RC = False
+    samplesheet = pep2samplesheet(StringIO(csv_data))
+    # set params
+    samplesheet.sequencer = form.get("sequencer")
+    if form.get('checkbox_fastq'):
+        samplesheet.fastq = 'Yes'
+    if form.get('checkbox_bcl'):
+        samplesheet.bcl = 'Yes'
+    if form.get('checkbox_bam'):
+        samplesheet.bam = 'Yes'
+    if form.get('checkbox_vcf'):
+        samplesheet.vcf = 'Yes'
+        raise Exception("VCF is not supported yet")
+    if form.get('checkbox_fastqc'):
+        samplesheet.fastqc = 'Yes'
+    if form.get('checkbox_fastscreen'):
+        samplesheet.fastscreen = 'Yes'
+    # RC
+    if form.get('checkbox_rc'):
+        samplesheet.rc_indexes() 
+    # generate samplesheet
+    ss_string : str = ''
+    if form.get("checkbox_seqonly"):
+        samplesheet.seqonly_project = 'Yes'
+        ss_string = samplesheet.seq_only()
 
-    samplesheet.get_indexes(index_kit=form["indexkit"], RC=RC)
-    samplesheet.make_full_string()
-    samplesheet = samplesheet.string
-    return samplesheet
+    return ss_string
+
 
 
 def combine_filestreams(filestreams, allowed_columns):
