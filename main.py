@@ -86,7 +86,7 @@ def upload_singlecell():
                     "pattern",
                     "sequence",
                     "feature_type",
-                    "Sample_ID",
+                    "Sample_Source",
                 ],
             )
 
