@@ -480,7 +480,7 @@ class pep2samplesheet:
         # seqonly project
         ss_1_string += f"SeqOnlyProject,{self.seqonly_project},\n"
         # dev project
-        ss_1_string += f"Development_Project,{self.dev_project},\n"
+        ss_1_string += f"DevelopmentProject,{self.dev_project},\n"
         # flowcell
         ss_1_string += f"Flowcell,{self.flowcell},\n"
         # fastq
