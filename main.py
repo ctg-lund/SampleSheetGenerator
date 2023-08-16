@@ -149,7 +149,7 @@ def generate_genomics_sheet(csv_data, form):
         #raise Exception("VCF is not supported yet")
 
     # rna counts
-    if form.get('checkbox_rnacounts'):
+    if form.get('checkbox_rnacount'):
         samplesheet.rnacounts = 'Yes'
     if form.get('checkbox_fastqc'):
         samplesheet.fastqc = 'Yes'
