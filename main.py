@@ -128,6 +128,14 @@ def generate_genomics_sheet(csv_data, form):
     samplesheet = pep2samplesheet(StringIO(csv_data))
     # set params
     samplesheet.sequencer = form.get("sequencer")
+    # dev project
+    if form.get("checkbox_dev"):
+        samplesheet.dev_project = "Yes"
+    # flowcell serial number
+    samplesheet.flowcell = form.get("flowcell")
+    # make sure it is filled in
+    if not samplesheet.flowcell:
+        raise Exception("Flowcell serial number is required!")
     if form.get('checkbox_fastq'):
         samplesheet.fastq = 'Yes'
     if form.get('checkbox_bcl'):
@@ -136,7 +144,13 @@ def generate_genomics_sheet(csv_data, form):
         samplesheet.bam = 'Yes'
     if form.get('checkbox_vcf'):
         samplesheet.vcf = 'Yes'
-        raise Exception("VCF is not supported yet")
+        # disable this exception for now
+        # we don't know if we will support VCF in the future
+        #raise Exception("VCF is not supported yet")
+
+    # rna counts
+    if form.get('checkbox_rnacounts'):
+        samplesheet.rnacounts = 'Yes'
     if form.get('checkbox_fastqc'):
         samplesheet.fastqc = 'Yes'
     if form.get('checkbox_fastscreen'):
@@ -148,7 +162,9 @@ def generate_genomics_sheet(csv_data, form):
     ss_string : str = ''
     if form.get("checkbox_seqonly"):
         samplesheet.seqonly_project = 'Yes'
-        ss_string = samplesheet.seq_only()
+        ss_string = samplesheet.make_ss()
+    else:
+        ss_string = samplesheet.make_ss()   
 
     return ss_string
 

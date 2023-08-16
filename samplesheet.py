@@ -422,12 +422,16 @@ class pep2samplesheet:
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
         # Params
-        self.sequencer = 'Unknown'
+        self.sequencer = ''
         self.seqonly_project = 'No'
+        # keep empty for testing
+        self.flowcell = ''
+        self.dev_project = 'No'
         self.fastq = 'No'
         self.bam = 'No'
         self.bcl = 'No'
         self.vcf = 'No'
+        self.rnacounts = 'No'
         self.fastqc = 'No'
         self.fastqscreen = 'No'
         # init patterns
@@ -464,7 +468,7 @@ class pep2samplesheet:
             raise Exception('Invalid index found in PEP!')
         
     
-    def seq_only(self):
+    def make_ss(self):
         """
         Assemble dataframe and illumina v1 static string
         return a string that can be written to a file
@@ -475,6 +479,10 @@ class pep2samplesheet:
         ss_1_string += f"Sequencer,{self.sequencer},\n"
         # seqonly project
         ss_1_string += f"SeqOnlyProject,{self.seqonly_project},\n"
+        # dev project
+        ss_1_string += f"Development_Project,{self.dev_project},\n"
+        # flowcell
+        ss_1_string += f"Flowcell,{self.flowcell},\n"
         # fastq
         ss_1_string += f"Fastq,{self.fastq},\n"
         # bam
@@ -483,6 +491,8 @@ class pep2samplesheet:
         ss_1_string += f"Bcl,{self.bcl},\n"
         # vcf
         ss_1_string += f"Vcf,{self.vcf},\n"
+        # rnacounts
+        ss_1_string += f"RnaCounts,{self.rnacounts},\n"
         # fastqc
         ss_1_string += f"Fastqc,{self.fastqc},\n"
         # fastqscreen

@@ -9,8 +9,16 @@
   <form method="POST" enctype="multipart/form-data">
     <h2>Workflow</h2>
     <div class="form-group">
+      <h3>Uncheck if this is NOT sequencing only</h3>
       <label for="SeqOnly">SeqOnly</label>
       <input type="checkbox" id="checkbox_seqonly" name="checkbox_seqonly" checked>
+      <div></div>
+      <h3>Is this a dev project?</h3>
+      <label for="Dev">Dev</label>
+      <input type="checkbox" id="checkbox_dev" name="checkbox_dev">
+      <div></div>
+      <h3>Flowcell serial number:</h3>
+      <input type="text" id="flowcell" name="flowcell">
       <div></div>
       <h2>Data Deliverables</h2>
       <div></div>
@@ -25,6 +33,9 @@
       <div></div>
       <label for="Vcf">Vcf</label>
       <input type="checkbox" id="checkbox_vcf" name="checkbox_vcf">
+      <div></div>
+      <label for="RNA Count matrix">RNA count matrix</label>
+      <input type="checkbox" id="checkbox_rnacount" name="checkbox_rnacount"> 
       <div></div>
       <h2>Quality Control deliverables</h2>
       <div></div>
