@@ -1,5 +1,6 @@
 [Header]
 FileFormatVersion,1
+DevelopmentProject,No
 [Settings]
 CreateFastqForIndexReads,0
 [Data]

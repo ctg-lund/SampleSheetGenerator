@@ -53,6 +53,10 @@ def upload_singlecell():
         else:
             singleindex = False
             samplesheet_columns = ["Sample_ID", "Sample_Project", "index", "index2"]
+        if (request.form.get("dev-project") =="true"):
+            development_status = True
+        else:
+            development_status = False
         # Process the sample info configuration
         samplesheet_info = combine_filestreams(
             request.files.getlist("samplesheets"), samplesheet_columns
@@ -91,7 +95,7 @@ def upload_singlecell():
             )
 
         samplesheet = generate_singlecell_sheet(
-            samplesheet_info, flexdata, feature_ref, singleindex
+            samplesheet_info, flexdata, feature_ref, singleindex, development_status
         )
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
@@ -118,8 +122,8 @@ def upload_lab_report():
         return render_template("lab_report.html")
 
 
-def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex):
-    samplesheet = singleCellSheet(csv_data, flexfile, feature_ref, singleindex)
+def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, development_status):
+    samplesheet = singleCellSheet(csv_data, flexfile, feature_ref, singleindex, development_status)
     samplesheet = samplesheet.dataDf
     return samplesheet
 

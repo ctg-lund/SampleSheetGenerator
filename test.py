@@ -34,5 +34,5 @@ def test_samplesheet():
         "data/singlecell/flex_config.csv",
         "data/singlecell/CTG_SampleSheet.csv",
     )
-    samplesheet = singleCellSheet(ss, fc, fr, False)
+    samplesheet = singleCellSheet(ss, fc, fr, False, False)
     assert samplesheet.dataDf == ctg_samplesheet

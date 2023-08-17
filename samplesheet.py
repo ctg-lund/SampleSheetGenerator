@@ -3,9 +3,10 @@ import re
 
 
 class singleCellSheet:
-    def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool):
+    def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool, development_status: bool):
         # attempt to open data with pandas
         self.singleindex = singleindex
+        self.development_status = development_status
         self.dataDf = data_csv
         self.flexfile = flexfile
         self.feature_ref = feature_ref
@@ -157,6 +158,10 @@ class singleCellSheet:
     def write_header(self):
         self.header = "[Header]\n"
         self.header += "FileFormatVersion,1\n"
+        if self.development_status:
+            self.header += "DevelopmentProject,Yes\n"
+        else:
+            self.header += "DevelopmentProject,No\n"
 
     def write_settings(self):
         self.settings = '[Settings]\n'
