@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, make_response, send_file
 from io import StringIO
+import io
 from samplesheet import singleCellSheet, pep2samplesheet
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.wrappers import Response
@@ -121,7 +122,34 @@ def upload_lab_report():
     else:
         return render_template("lab_report.html")
 
+@app.route("/pocketbase" ,methods=['POST', 'GET'])
+def upload_samplesheet():
+    if request.method == 'POST':
+        samplesheet = read_samplesheet(request.files.get("samplesheet"))
+        data_section = False
+        csv_data = []
 
+        # Convert the text into a file-like object for reading)
+
+        for line in samplesheet:
+            line = line.strip()
+            if line == "[Data]":
+                data_section = True
+            elif data_section and line.startswith("["):
+                data_section = False
+            elif data_section and line:
+                csv_data.append(line)
+
+        # Join the lines and create a DataFrame using pandas
+        csv_content = "\n".join(csv_data)
+        csv_io = io.StringIO(csv_content)
+        df = pd.read_csv(csv_io)
+
+        print(df)
+
+        return render_template('pocketbase_sync.html')
+    else:
+        return render_template('pocketbase_sync.html')
 def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, development_status):
     samplesheet = singleCellSheet(csv_data, flexfile, feature_ref, singleindex, development_status)
     samplesheet = samplesheet.dataDf
@@ -172,7 +200,10 @@ def generate_genomics_sheet(csv_data, form):
 
     return ss_string
 
-
+def read_samplesheet(filestream):
+    file_csv = filestream.stream.read().decode("utf-8")
+    text_io = io.StringIO(file_csv)
+    return text_io
 
 def combine_filestreams(filestreams, allowed_columns):
     file_list = list()
