@@ -145,7 +145,7 @@ def upload_samplesheet():
         csv_io = io.StringIO(csv_content)
         df = pd.read_csv(csv_io)
 
-        print(df)
+        print(df['Sample_Project'].unique())
 
         return render_template('pocketbase_sync.html')
     else:
