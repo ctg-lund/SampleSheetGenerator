@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Project Uploader - {{ super() }}
+{% endblock %}
+
+{% block content %}
+  <h1>Upload SampleSheet</h1>
+  <form action="/samplesheet/pocketbase" method="post" enctype="multipart/form-data">
+      <label for="runfolder">Run Folder name:</label>
+  <input type="text" id="runfolder" name="runfolder">
+  <br><br>
+    <input type="file" name="samplesheet" id="samplesheet">
+    <input type="submit" value="Submit Samplesheet" name="submit">
+  </form>
+{% endblock %}
+
