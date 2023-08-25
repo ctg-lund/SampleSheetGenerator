@@ -488,20 +488,6 @@ class pep2samplesheet:
         ss_1_string += f"DevelopmentProject,{self.dev_project},\n"
         # flowcell
         ss_1_string += f"Flowcell,{self.flowcell},\n"
-        # fastq
-        ss_1_string += f"Fastq,{self.fastq},\n"
-        # bam
-        ss_1_string += f"Bam,{self.bam},\n"
-        # bcl
-        ss_1_string += f"Bcl,{self.bcl},\n"
-        # vcf
-        ss_1_string += f"Vcf,{self.vcf},\n"
-        # rnacounts
-        ss_1_string += f"RnaCounts,{self.rnacounts},\n"
-        # fastqc
-        ss_1_string += f"Fastqc,{self.fastqc},\n"
-        # fastqscreen
-        ss_1_string += f"Fastqscreen,{self.fastqscreen},\n"
         # data
         ss_1_string += "\n[Data]\n"
         # rename columns
