@@ -465,6 +465,9 @@ class pep2samplesheet:
             raise Exception('Invalid sample_name found in PEP!')
         if not self.df['index'].str.match(self.index_pattern).all():
             raise Exception('Invalid index found in PEP!')
+        # check projects for the columns fastq,bam
+        if not self.projects.columns.isin(['project_id','fastq','bam']).all():
+            raise Exception('Missing columns in projects.csv!')
         
     
     def make_ss(self):
