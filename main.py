@@ -26,22 +26,21 @@ def handle_error(e):
 @app.route("/", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
-        csvfile = request.files["csvfile"]
+        samples = request.files["samples.csv"]
+        projects = request.files["projects.csv"]
         # Do something with the uploaded CSV file...
-        csv_data = csvfile.stream.read().decode("utf-8")
-        samplesheet = generate_genomics_sheet(csv_data, request.form)
+        samples_data = samples.stream.read().decode("utf-8")
+        projects_data = projects.stream.read().decode("utf-8")
+        samplesheet, flowcell = generate_genomics_sheet(samples_data, projects_data, request.form)
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
         response.headers[
             "Content-Disposition"
-        ] = f"attachment; filename=CTG_SampleSheet.csv"
+        ] = f"attachment; filename=CTG_SampleSheet_{flowcell}.csv"
         # under construction
         return response
 
-    else:
-        df = pd.read_csv("data/index_table.csv")
-        index_kits = df["Index_Adapters"].unique()
-        return render_template("forms.html", index_kits=index_kits)
+
 
 
 @app.route("/singlecell", methods=["GET", "POST"])
@@ -128,8 +127,8 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, deve
     return samplesheet
 
 
-def generate_genomics_sheet(csv_data, form):
-    samplesheet = pep2samplesheet(StringIO(csv_data))
+def generate_genomics_sheet(samples_data, projects_data, form):
+    samplesheet = pep2samplesheet(StringIO(samples_data), StringIO(projects_data)
     # set params
     samplesheet.sequencer = form.get("sequencer")
     # dev project
@@ -140,25 +139,6 @@ def generate_genomics_sheet(csv_data, form):
     # make sure it is filled in
     if not samplesheet.flowcell:
         raise Exception("Flowcell serial number is required!")
-    if form.get('checkbox_fastq'):
-        samplesheet.fastq = 'Yes'
-    if form.get('checkbox_bcl'):
-        samplesheet.bcl = 'Yes'
-    if form.get('checkbox_bam'):
-        samplesheet.bam = 'Yes'
-    if form.get('checkbox_vcf'):
-        samplesheet.vcf = 'Yes'
-        # disable this exception for now
-        # we don't know if we will support VCF in the future
-        #raise Exception("VCF is not supported yet")
-
-    # rna counts
-    if form.get('checkbox_rnacount'):
-        samplesheet.rnacounts = 'Yes'
-    if form.get('checkbox_fastqc'):
-        samplesheet.fastqc = 'Yes'
-    if form.get('checkbox_fastscreen'):
-        samplesheet.fastscreen = 'Yes'
     # RC
     if form.get('checkbox_rc'):
         samplesheet.rc_indexes() 
@@ -170,7 +150,7 @@ def generate_genomics_sheet(csv_data, form):
     else:
         ss_string = samplesheet.make_ss()   
 
-    return ss_string
+    return ss_string, form.get("flowcell")
 
 
 

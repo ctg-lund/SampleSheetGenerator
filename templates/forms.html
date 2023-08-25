@@ -20,30 +20,6 @@
       <h3>Flowcell serial number:</h3>
       <input type="text" id="flowcell" name="flowcell">
       <div></div>
-      <h2>Data Deliverables</h2>
-      <div></div>
-      <label for="BCL">BCL</label>
-      <input type="checkbox" id="checkbox_bcl" name="checkbox_bcl">
-      <div></div>
-      <label for="Fastq">Fastq</label>
-      <input type="checkbox" id="checkbox_fastq" name="checkbox_fastq" checked>
-      <div></div>
-      <label for="Bam">Bam</label>
-      <input type="checkbox" id="checkbox_bam" name="checkbox_bam">
-      <div></div>
-      <label for="Vcf">Vcf</label>
-      <input type="checkbox" id="checkbox_vcf" name="checkbox_vcf">
-      <div></div>
-      <label for="RNA Count matrix">RNA count matrix</label>
-      <input type="checkbox" id="checkbox_rnacount" name="checkbox_rnacount"> 
-      <div></div>
-      <h2>Quality Control deliverables</h2>
-      <div></div>
-      <label for="Fastqc">Fastqc</label>
-      <input type="checkbox" id="checkbox_fastqc" name="checkbox_fastqc" checked>
-      <label for="Fastqscreen">Fastqscreen</label>
-      <input type="checkbox" id="checkbox_fastqscreen" name="checkbox_fastqscreen">
-      <div></div>
       <h2>Reverse Complement Index2?</h2>
       <label for="RC">RC Index2</label>
       <input type="checkbox" id="checkbox_rc" name="checkbox_rc">
@@ -58,9 +34,13 @@
         </select>
     </div>
     <div class="form-group">
-        <label for="csvfile">Upload the CSV</label>
-        <input type="file" class="form-control-file" id="csvfile" name="csvfile">
+        <label for="samples">Upload samples.csv</label>
+        <input type="file" class="form-control-file" id="samples" name="samples">
     </div>
+    <div class="form-group">
+      <label for="projects">Upload projects.csv</label>
+      <input type="file" class="form-control-file" id="projects" name="projects">
+  </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
