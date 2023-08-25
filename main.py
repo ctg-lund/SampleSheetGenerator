@@ -39,6 +39,8 @@ def upload():
         ] = f"attachment; filename=CTG_SampleSheet_{flowcell}.csv"
         # under construction
         return response
+    else:
+        return render_template("forms.html")
 
 
 
@@ -128,7 +130,7 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, deve
 
 
 def generate_genomics_sheet(samples_data, projects_data, form):
-    samplesheet = pep2samplesheet(StringIO(samples_data), StringIO(projects_data)
+    samplesheet = pep2samplesheet(StringIO(samples_data), StringIO(projects_data))
     # set params
     samplesheet.sequencer = form.get("sequencer")
     # dev project
