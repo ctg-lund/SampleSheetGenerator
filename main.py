@@ -146,11 +146,7 @@ def generate_genomics_sheet(samples_data, projects_data, form):
         samplesheet.rc_indexes() 
     # generate samplesheet
     ss_string : str = ''
-    if form.get("checkbox_seqonly"):
-        samplesheet.seqonly_project = 'Yes'
-        ss_string = samplesheet.make_ss()
-    else:
-        ss_string = samplesheet.make_ss()   
+    ss_string = samplesheet.make_ss()   
 
     return ss_string, form.get("flowcell")
 
