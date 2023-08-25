@@ -26,8 +26,8 @@ def handle_error(e):
 @app.route("/", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
-        samples = request.files["samples.csv"]
-        projects = request.files["projects.csv"]
+        samples = request.files["samples"]
+        projects = request.files["projects"]
         # Do something with the uploaded CSV file...
         samples_data = samples.stream.read().decode("utf-8")
         projects_data = projects.stream.read().decode("utf-8")
