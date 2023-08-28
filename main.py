@@ -36,7 +36,7 @@ def upload():
         response.headers["Content-Type"] = "text/csv"
         response.headers[
             "Content-Disposition"
-        ] = f"attachment; filename=CTG_SampleSheet_{flowcell}.csv"
+        ] = f"attachment; filename=CTG_SampleSheet.csv"
         # under construction
         return response
     else:
