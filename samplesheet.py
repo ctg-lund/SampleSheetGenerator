@@ -422,23 +422,17 @@ class pep2samplesheet:
     As decided we will create Illumina v1 samplesheets going forward
     due to the restrictiveness of v2
     """
-    def __init__(self, data_csv):
+    def __init__(self, data_csv, projects_csv):
         # init data
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
+        self.projects = pd.read_csv(projects_csv)
         # Params
         self.sequencer = ''
         self.seqonly_project = 'No'
         # keep empty for testing
         self.flowcell = ''
         self.dev_project = 'No'
-        self.fastq = 'No'
-        self.bam = 'No'
-        self.bcl = 'No'
-        self.vcf = 'No'
-        self.rnacounts = 'No'
-        self.fastqc = 'No'
-        self.fastqscreen = 'No'
         # init patterns
         self.project_id_pattern = re.compile(r'^\d{4}_\d{3}$')
         self.sample_name_pattern = re.compile(r'^[0-9A-Za-z_-]+$')
@@ -472,6 +466,13 @@ class pep2samplesheet:
         if not self.df['index'].str.match(self.index_pattern).all():
             raise Exception('Invalid index found in PEP!')
         
+        # only check that columns exist
+        # projects df needs at least a project_id and a fastq column
+        if not 'project_id' in self.projects.columns:
+            raise Exception('project_id column not found in projects.csv!')
+        if not 'fastq' in self.projects.columns:
+            raise Exception('fastq column not found in projects.csv!')
+        
     
     def make_ss(self):
         """
@@ -482,26 +483,10 @@ class pep2samplesheet:
         ss_1_string = "[Header]\nFileFormatVersion,1,\n"
         # sequencer
         ss_1_string += f"Sequencer,{self.sequencer},\n"
-        # seqonly project
-        ss_1_string += f"SeqOnlyProject,{self.seqonly_project},\n"
         # dev project
         ss_1_string += f"DevelopmentProject,{self.dev_project},\n"
         # flowcell
         ss_1_string += f"Flowcell,{self.flowcell},\n"
-        # fastq
-        ss_1_string += f"Fastq,{self.fastq},\n"
-        # bam
-        ss_1_string += f"Bam,{self.bam},\n"
-        # bcl
-        ss_1_string += f"Bcl,{self.bcl},\n"
-        # vcf
-        ss_1_string += f"Vcf,{self.vcf},\n"
-        # rnacounts
-        ss_1_string += f"RnaCounts,{self.rnacounts},\n"
-        # fastqc
-        ss_1_string += f"Fastqc,{self.fastqc},\n"
-        # fastqscreen
-        ss_1_string += f"Fastqscreen,{self.fastqscreen},\n"
         # data
         ss_1_string += "\n[Data]\n"
         # rename columns
@@ -514,6 +499,17 @@ class pep2samplesheet:
         str_df = '\n'.join(str_df)
         # Append the string to the samplesheet
         ss_1_string += str_df
+        # rename columns in projects.csv
+        self.projects.rename(columns=self.column_map, inplace=True)
+        # convert self.projects to a string
+        str_projects = self.projects.apply(lambda x: ','.join(x.astype(str)), axis=1)
+        # join the rows with a newline
+        str_projects = '\n'.join(str_projects)
+        # append the string to the samplesheet
+        ss_1_string += "\n\n[Projects_Data]\n"
+        ss_1_string += ",".join(self.projects.columns) + "\n"
+        ss_1_string += str_projects
+        # return the string
         return ss_1_string
     
     def reverse_complement(self, nucleotide_string):

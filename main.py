@@ -26,22 +26,38 @@ def handle_error(e):
 @app.route("/", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
-        csvfile = request.files["csvfile"]
-        # Do something with the uploaded CSV file...
-        csv_data = csvfile.stream.read().decode("utf-8")
-        samplesheet = generate_genomics_sheet(csv_data, request.form)
+        # normal project
+        try:
+            samples = request.files["samples"]
+            projects = request.files["projects"]
+            # Do something with the uploaded CSV file...
+            samples_data = samples.stream.read().decode("utf-8")
+            projects_data = projects.stream.read().decode("utf-8")
+            samplesheet = generate_genomics_sheet(samples_data, projects_data, request.form)
+
+        except pd.errors.EmptyDataError:
+                
+                    # dump rawdata
+                dev_project = 'No'
+                if request.form.get("checkbox_rawdata"):
+                    if request.form.get("checkbox_dev"):
+                        dev_project = 'Yes'
+                    if request.form.get("project_id") == '':
+                        raise Exception("Project ID is required for raw data!")
+                    if request.form.get("flowcell") == '':
+                        raise Exception("Flowcell serial number is required for raw data!")
+                samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
+
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
         response.headers[
-            "Content-Disposition"
-        ] = f"attachment; filename=CTG_SampleSheet.csv"
-        # under construction
+                "Content-Disposition"
+            ] = f"attachment; filename=CTG_SampleSheet_{request.form.get('flowcell')}.csv"
         return response
-
     else:
-        df = pd.read_csv("data/index_table.csv")
-        index_kits = df["Index_Adapters"].unique()
-        return render_template("forms.html", index_kits=index_kits)
+        return render_template("forms.html")
+
+
 
 
 @app.route("/singlecell", methods=["GET", "POST"])
@@ -128,8 +144,8 @@ def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, deve
     return samplesheet
 
 
-def generate_genomics_sheet(csv_data, form):
-    samplesheet = pep2samplesheet(StringIO(csv_data))
+def generate_genomics_sheet(samples_data, projects_data, form):
+    samplesheet = pep2samplesheet(StringIO(samples_data), StringIO(projects_data))
     # set params
     samplesheet.sequencer = form.get("sequencer")
     # dev project
@@ -140,35 +156,12 @@ def generate_genomics_sheet(csv_data, form):
     # make sure it is filled in
     if not samplesheet.flowcell:
         raise Exception("Flowcell serial number is required!")
-    if form.get('checkbox_fastq'):
-        samplesheet.fastq = 'Yes'
-    if form.get('checkbox_bcl'):
-        samplesheet.bcl = 'Yes'
-    if form.get('checkbox_bam'):
-        samplesheet.bam = 'Yes'
-    if form.get('checkbox_vcf'):
-        samplesheet.vcf = 'Yes'
-        # disable this exception for now
-        # we don't know if we will support VCF in the future
-        #raise Exception("VCF is not supported yet")
-
-    # rna counts
-    if form.get('checkbox_rnacount'):
-        samplesheet.rnacounts = 'Yes'
-    if form.get('checkbox_fastqc'):
-        samplesheet.fastqc = 'Yes'
-    if form.get('checkbox_fastscreen'):
-        samplesheet.fastscreen = 'Yes'
     # RC
     if form.get('checkbox_rc'):
         samplesheet.rc_indexes() 
     # generate samplesheet
     ss_string : str = ''
-    if form.get("checkbox_seqonly"):
-        samplesheet.seqonly_project = 'Yes'
-        ss_string = samplesheet.make_ss()
-    else:
-        ss_string = samplesheet.make_ss()   
+    ss_string = samplesheet.make_ss()   
 
     return ss_string
 
@@ -187,6 +180,19 @@ def combine_filestreams(filestreams, allowed_columns):
         file_list.append(file_csv)
     filestreams = pd.concat(file_list)
     return filestreams
+
+def make_raw(dev_project, flowcell, pid):
+    """
+    In the case of raw data we need the simplest samplesheet possible
+    that would be a flowcell ID and a project ID under a [Header]
+    also probably dev project
+    """
+    return f"""[Header]
+FileFormatVersion,1,
+DevelopmentProject,{dev_project},
+Flowcell,{flowcell},
+Project_ID,{pid},
+    """
 
 
 if __name__ == "__main__":

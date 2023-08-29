@@ -7,48 +7,28 @@
 {% block content %}
   <h1>Check all that applies</h1>
   <form method="POST" enctype="multipart/form-data">
-    <h2>Workflow</h2>
     <div class="form-group">
-      <h3>Uncheck if this is NOT sequencing only</h3>
-      <label for="SeqOnly">SeqOnly</label>
-      <input type="checkbox" id="checkbox_seqonly" name="checkbox_seqonly" checked>
       <div></div>
       <h3>Is this a dev project?</h3>
       <label for="Dev">Dev</label>
       <input type="checkbox" id="checkbox_dev" name="checkbox_dev">
       <div></div>
+      <h3>Raw data only?</h3>
+      <br>
+      <p>For raw data we only need the flowcell and the project id, then you can press Submit!</p>
+      <br>
+      <label for="Raw">Raw</label>
+      <input type="checkbox" id="checkbox_raw" name="checkbox_raw">
+        <label for="pid">Project ID</label>
+        <input type="text" id="pid" name="pid" pattern="^\d{4}_\d{3}$">
+      <div></div>
       <h3>Flowcell serial number:</h3>
       <input type="text" id="flowcell" name="flowcell">
-      <div></div>
-      <h2>Data Deliverables</h2>
-      <div></div>
-      <label for="BCL">BCL</label>
-      <input type="checkbox" id="checkbox_bcl" name="checkbox_bcl">
-      <div></div>
-      <label for="Fastq">Fastq</label>
-      <input type="checkbox" id="checkbox_fastq" name="checkbox_fastq" checked>
-      <div></div>
-      <label for="Bam">Bam</label>
-      <input type="checkbox" id="checkbox_bam" name="checkbox_bam">
-      <div></div>
-      <label for="Vcf">Vcf</label>
-      <input type="checkbox" id="checkbox_vcf" name="checkbox_vcf">
-      <div></div>
-      <label for="RNA Count matrix">RNA count matrix</label>
-      <input type="checkbox" id="checkbox_rnacount" name="checkbox_rnacount"> 
-      <div></div>
-      <h2>Quality Control deliverables</h2>
-      <div></div>
-      <label for="Fastqc">Fastqc</label>
-      <input type="checkbox" id="checkbox_fastqc" name="checkbox_fastqc" checked>
-      <label for="Fastqscreen">Fastqscreen</label>
-      <input type="checkbox" id="checkbox_fastqscreen" name="checkbox_fastqscreen">
       <div></div>
       <h2>Reverse Complement Index2?</h2>
       <label for="RC">RC Index2</label>
       <input type="checkbox" id="checkbox_rc" name="checkbox_rc">
-      
-  </div>
+    </div>
     <div class="form-group">
         <label for="select">Select which sequencer</label>
         <select class="form-control" id="select" name="sequencer">
@@ -57,11 +37,50 @@
           <option value="Novaseq">Novaseq6000</option>
         </select>
     </div>
-    <div class="form-group">
-        <label for="csvfile">Upload the CSV</label>
-        <input type="file" class="form-control-file" id="csvfile" name="csvfile">
-    </div>
+    <div>
+      <h3>Instructions:</h3>
+      <p>Download and fill out one samples.csv and one projects.csv.
+        The samples.csv is named after the analysis that we perform, eg
+        dna_samples.csv, rna_samples.csv and so on.
+        <br>
 
+        There is only one projects.csv (link below), when you open it you will find
+        that it tracks information on a project level whereas the samples.csv tracks
+        sample level information.
+        <br>
+        Lanes:<br>
+        The Lane column can be added to any samples.csv. 
+        Samples must be specified with one row for every lane that sample is found on.
+        <br>
+        Eg:<br>
+        Sample1, 1<br>
+        Sample1, 2<br>
+        Sample1, 3<br>
+        <br>
+        The above means we expect that sample to be found on lane 1, 2 and 3. 
+        <br>
+        All csv files can be found at the <a href="https://github.com/ctg-lund/Templates/tree/main/PEP/All">templates repo</a>
+        <br>
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/dna_samples.csv">dna_samples.csv</a>
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/rna_samples.csv">rna_samples.csv</a>
+        <br>
+        And the projects file:
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/projects.csv">projects.csv</a>
+      </p>
+
+    </div>
+    <div class="form-group">
+        <label for="samples">Upload samples.csv</label>
+        <input type="file" class="form-control-file" id="samples" name="samples">
+    </div>
+    <div class="form-group">
+      <label for="projects">Upload projects.csv</label>
+      <input type="file" class="form-control-file" id="projects" name="projects">
+  </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
+
 {% endblock %}
