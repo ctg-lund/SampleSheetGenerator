@@ -35,7 +35,8 @@ def upload():
             projects_data = projects.stream.read().decode("utf-8")
             samplesheet = generate_genomics_sheet(samples_data, projects_data, request.form)
 
-        except:
+        except pd.errors.EmptyDataError:
+                
                     # dump rawdata
                 dev_project = 'No'
                 if request.form.get("checkbox_rawdata"):
