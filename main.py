@@ -186,7 +186,7 @@ def make_raw(dev_project, flowcell, pid):
     that would be a flowcell ID and a project ID under a [Header]
     also probably dev project
     """
-    return f""""[Header]
+    return f"""[Header]
 FileFormatVersion,1,
 DevelopmentProject,{dev_project},
 Flowcell,{flowcell},
