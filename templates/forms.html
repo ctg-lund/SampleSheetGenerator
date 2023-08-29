@@ -14,6 +14,9 @@
       <input type="checkbox" id="checkbox_dev" name="checkbox_dev">
       <div></div>
       <h3>Raw data only?</h3>
+      <br>
+      <p>For raw data we only need the flowcell and the project id, then you can press Submit!</p>
+      <br>
       <label for="Raw">Raw</label>
       <input type="checkbox" id="checkbox_raw" name="checkbox_raw">
         <label for="pid">Project ID</label>
@@ -33,6 +36,41 @@
           <option value="Miseq">Miseq</option>
           <option value="Novaseq">Novaseq6000</option>
         </select>
+    </div>
+    <div>
+      <h3>Instructions:</h3>
+      <p>Download and fill out one samples.csv and one projects.csv.
+        The samples.csv is named after the analysis that we perform, eg
+        dna_samples.csv, rna_samples.csv and so on.
+        <br>
+
+        There is only one projects.csv (link below), when you open it you will find
+        that it tracks information on a project level whereas the samples.csv tracks
+        sample level information.
+        <br>
+        Lanes:<br>
+        The Lane column can be added to any samples.csv. 
+        Samples must be specified with one row for every lane that sample is found on.
+        <br>
+        Eg:<br>
+        Sample1, 1<br>
+        Sample1, 2<br>
+        Sample1, 3<br>
+        <br>
+        The above means we expect that sample to be found on lane 1, 2 and 3. 
+        <br>
+        All csv files can be found at the <a href="https://github.com/ctg-lund/Templates/tree/main/PEP/All">templates repo</a>
+        <br>
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/dna_samples.csv">dna_samples.csv</a>
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/rna_samples.csv">rna_samples.csv</a>
+        <br>
+        And the projects file:
+        <br>
+        <a href="https://github.com/ctg-lund/Templates/blob/main/PEP/All/projects.csv">projects.csv</a>
+      </p>
+
     </div>
     <div class="form-group">
         <label for="samples">Upload samples.csv</label>
