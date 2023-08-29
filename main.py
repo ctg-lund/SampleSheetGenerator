@@ -26,18 +26,32 @@ def handle_error(e):
 @app.route("/", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
-        samples = request.files["samples"]
-        projects = request.files["projects"]
-        # Do something with the uploaded CSV file...
-        samples_data = samples.stream.read().decode("utf-8")
-        projects_data = projects.stream.read().decode("utf-8")
-        samplesheet, flowcell = generate_genomics_sheet(samples_data, projects_data, request.form)
+        # normal project
+        try:
+            samples = request.files["samples"]
+            projects = request.files["projects"]
+            # Do something with the uploaded CSV file...
+            samples_data = samples.stream.read().decode("utf-8")
+            projects_data = projects.stream.read().decode("utf-8")
+            samplesheet = generate_genomics_sheet(samples_data, projects_data, request.form)
+
+        except:
+                    # dump rawdata
+                dev_project = 'No'
+                if request.form.get("checkbox_rawdata"):
+                    if request.form.get("checkbox_dev"):
+                        dev_project = 'Yes'
+                    if request.form.get("project_id") == '':
+                        raise Exception("Project ID is required for raw data!")
+                    if request.form.get("flowcell") == '':
+                        raise Exception("Flowcell serial number is required for raw data!")
+                samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
+
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
         response.headers[
-            "Content-Disposition"
-        ] = f"attachment; filename=CTG_SampleSheet.csv"
-        # under construction
+                "Content-Disposition"
+            ] = f"attachment; filename=CTG_SampleSheet.csv"
         return response
     else:
         return render_template("forms.html")
@@ -148,7 +162,7 @@ def generate_genomics_sheet(samples_data, projects_data, form):
     ss_string : str = ''
     ss_string = samplesheet.make_ss()   
 
-    return ss_string, form.get("flowcell")
+    return ss_string
 
 
 
@@ -165,6 +179,19 @@ def combine_filestreams(filestreams, allowed_columns):
         file_list.append(file_csv)
     filestreams = pd.concat(file_list)
     return filestreams
+
+def make_raw(dev_project, flowcell, pid):
+    """
+    In the case of raw data we need the simplest samplesheet possible
+    that would be a flowcell ID and a project ID under a [Header]
+    also probably dev project
+    """
+    return f""""[Header]
+FileFormatVersion,1,
+DevelopmentProject,{dev_project},
+Flowcell,{flowcell},
+Project_ID,{pid},
+    """
 
 
 if __name__ == "__main__":
