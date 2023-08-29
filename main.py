@@ -52,7 +52,7 @@ def upload():
         response.headers["Content-Type"] = "text/csv"
         response.headers[
                 "Content-Disposition"
-            ] = f"attachment; filename=CTG_SampleSheet.csv"
+            ] = f"attachment; filename=CTG_SampleSheet_{request.form.get('flowcell')}.csv"
         return response
     else:
         return render_template("forms.html")
