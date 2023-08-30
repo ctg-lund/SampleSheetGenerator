@@ -39,14 +39,16 @@ def upload():
                 
                     # dump rawdata
                 dev_project = 'No'
-                if request.form.get("checkbox_rawdata"):
+                if request.form.get("checkbox_raw"):
                     if request.form.get("checkbox_dev"):
                         dev_project = 'Yes'
-                    if not request.form.get("project_id"):
+                    if request.form.get("project_id") == "":
                         raise Exception("Project ID is required for raw data!")
-                    if not request.form.get("flowcell"):
+                    if request.form.get("flowcell") == "":
                         raise Exception("Flowcell serial number is required for raw data!")
-                samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
+                    samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
+                else:
+                    raise Exception("No data provided!")
 
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
