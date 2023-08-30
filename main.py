@@ -42,9 +42,9 @@ def upload():
                 if request.form.get("checkbox_rawdata"):
                     if request.form.get("checkbox_dev"):
                         dev_project = 'Yes'
-                    if request.form.get("project_id") == '':
+                    if not request.form.get("project_id"):
                         raise Exception("Project ID is required for raw data!")
-                    if request.form.get("flowcell") == '':
+                    if not request.form.get("flowcell"):
                         raise Exception("Flowcell serial number is required for raw data!")
                 samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
 
