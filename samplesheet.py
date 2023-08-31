@@ -465,6 +465,22 @@ class pep2samplesheet:
             raise Exception('Invalid sample_name found in PEP!')
         if not self.df['index'].str.match(self.index_pattern).all():
             raise Exception('Invalid index found in PEP!')
+        # valid columns for samples.csv are:
+        # project_id, sample_name, index, index2, reference, experiment, control, lane
+        valid_columns = ['project_id', 
+                         'sample_name', 
+                         'index', 
+                         'index2', 
+                         'reference', 
+                         'experiment', 
+                         'control', 
+                         'lane', 
+                         'Lane',
+                         'panel'
+                         ]
+        for col in self.df.columns:
+            if col not in valid_columns:
+                raise Exception(f'Invalid column found in samples.csv: {col}')
         
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column

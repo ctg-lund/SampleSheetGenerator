@@ -13,17 +13,17 @@
       <label for="Dev">Dev</label>
       <input type="checkbox" id="checkbox_dev" name="checkbox_dev">
       <div></div>
-      <h3>Raw data only?</h3>
+      <h3>Unindexed data only?</h3>
       <br>
-      <p>For raw data we only need the flowcell and the project id, then you can press Submit!</p>
+      <p>For unindexed fastqs we only need the flowcell and the project id, then you can press Submit!</p>
       <br>
-      <label for="Raw">Raw</label>
+      <label for="Raw">Unindexed Fastqs</label>
       <input type="checkbox" id="checkbox_raw" name="checkbox_raw">
         <label for="pid">Project ID</label>
         <input type="text" id="pid" name="pid" pattern="^\d{4}_\d{3}$">
       <div></div>
       <h3>Flowcell serial number:</h3>
-      <input type="text" id="flowcell" name="flowcell">
+      <input type="text" id="flowcell" name="flowcell" pattern="^\w+$">
       <div></div>
       <h2>Reverse Complement Index2?</h2>
       <label for="RC">RC Index2</label>
@@ -35,6 +35,7 @@
           <option value="Nextseq 2000">Nextseq2000</option>
           <option value="Miseq">Miseq</option>
           <option value="Novaseq">Novaseq6000</option>
+          <option value="Novaseq">NovaseqX</option>
         </select>
     </div>
     <div>
