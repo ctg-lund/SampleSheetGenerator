@@ -3,16 +3,10 @@
 {% block title %}Error{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-12">
-      <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">An error occurred</h4>
-        <p>Something went wrong while processing your request. Please try again later.</p>
-        <hr>
-          {% if e %}
-            <p class="mb-0">Error message: {{ e }}</p>
-          {% endif %}
-      </div>
-    </div>
-  </div>
+<h1>An error occurred:</h1>
+<body>
+    <h1>Oops!</h1>
+    <p>Sorry, but an error occurred.</p>
+    <p>Here's a traceback for debugging purposes:</p>
+    <p>{{ traceback_lines|safe }}</p>
 {% endblock %}

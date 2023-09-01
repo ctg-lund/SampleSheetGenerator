@@ -427,6 +427,14 @@ class pep2samplesheet:
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
         self.projects = pd.read_csv(projects_csv)
+        self.lane_divider = False
+        self.shared_flowcell = False
+        # check lanes
+        self.check_shared_flowcell()    
+        # lowercase
+        self.lower_case_colnames()
+        # check duplicate indexes
+        self.check_duplicate_indexes()
         # Params
         self.sequencer = ''
         self.seqonly_project = 'No'
@@ -475,7 +483,6 @@ class pep2samplesheet:
                          'experiment', 
                          'control', 
                          'lane', 
-                         'Lane',
                          'panel'
                          ]
         for col in self.df.columns:
@@ -489,6 +496,78 @@ class pep2samplesheet:
         if not 'fastq' in self.projects.columns:
             raise Exception('fastq column not found in projects.csv!')
         
+    def check_duplicate_indexes(self):
+        """
+        Illumina machines will start even if a sample has the same
+        index pair as another in the same pool. This will cause
+        the samples to be mixed up. This function will check for
+        duplicate index pairs and raise an exception if any are found.
+
+        If there is a lane divider, the index pairs are allowed to be
+        the same across lanes, but not within.
+        """
+        # check for duplicate index pairs
+        if self.lane_divider:
+            # in this case subset by lane
+            # then look for duplicates in index + index2
+            # report which samples and lanes contain duplicates
+            for lane in self.df['lane'].unique():
+                subset = self.df[self.df['lane'] == lane]
+                duplicated_rows = subset[subset['index'].str.cat(subset['index2']).duplicated()]
+                if duplicated_rows.shape[0] > 0:
+                    msg = f"""
+                    <h4> Duplicates found in samples.csv!</h4>
+
+                    The following samples have the same index pair in lane {lane}:
+                    {duplicated_rows['sample_name'].to_string(index=False)}
+                    
+                    Table:
+                    {duplicated_rows.to_html(index=False)}
+                    """
+                    raise Exception(msg)
+
+        else:
+            # check for duplicate index pairs (index pair = index + index2)
+            # report which samples contain duplicates
+            duplicated_rows = self.df[self.df['index'].str.cat(self.df['index2']).duplicated()]
+            if duplicated_rows.shape[0] > 0:
+                # we can only print in one line
+                # so we will print the sample names, project ids and index pairs
+                msg = f"""
+                <h4>Duplicates found in samples.csv!</h4>
+
+                The following samples have the same index pair:
+                {duplicated_rows['sample_name'].to_string(index=False)}
+                
+                Table:
+                {duplicated_rows.to_html(index=False)}    
+"""
+                raise Exception(msg)
+  
+    def check_shared_flowcell(self):
+        """
+        Check if samples belong to a shared flowcell.
+        A shared flowcell has more than one project id in
+        the project_id column.
+        Also check if there is a lane divider. There is 
+        a lane divider if there are more than one unique
+        value in the lane column.
+        """
+        # check if there is more than one unique project id
+        if len(self.df['project_id'].unique()) > 1:
+            self.shared_flowcell = True
+        # check if there is more than one unique lane
+        # the lane column is optional
+        if 'lane' in self.df.columns:
+            if len(self.df['lane'].unique()) > 1:
+                self.lane_divider = True
+
+    def lower_case_colnames(self):
+        """
+        Make all column names lowercase in self.df and self.projects
+        """
+        self.df.columns = self.df.columns.str.lower()
+        self.projects.columns = self.projects.columns.str.lower()
     
     def make_ss(self):
         """

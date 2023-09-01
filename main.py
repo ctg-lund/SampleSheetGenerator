@@ -7,6 +7,7 @@ import pandas as pd
 import sys
 import traceback
 from pprint import pprint
+import re
 
 app = Flask(__name__)
 
@@ -19,9 +20,13 @@ app.wsgi_app = DispatcherMiddleware(
 @app.errorhandler(Exception)
 def handle_error(e):
     etype, value, tb = sys.exc_info()
-    print(traceback.print_exception(etype, value, tb))
-    return render_template("error.html", e=e), 500
-
+    traceback_lines = traceback.format_exception(etype, value, tb)
+    traceback_string = "".join(traceback_lines)
+    traceback_html = traceback_string.replace('\n', '<br>')
+    # also find the line that starts with Exception: and make it
+    # a html header 4
+    traceback_html = re.sub(r'Exception:', r'<h4>\g<0></h4>', traceback_html) 
+    return render_template("error.html", traceback_lines=traceback_html), 500
 
 @app.route("/", methods=["GET", "POST"])
 def upload():
