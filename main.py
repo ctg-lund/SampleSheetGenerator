@@ -32,25 +32,15 @@ def handle_error(e):
 def upload():
     if request.method == "POST":
         # normal project
-        if request.form.get("checkbox_raw"):
-            # dump rawdata
-            dev_project = 'No'
-            if request.form.get("checkbox_raw"):
-                if request.form.get("checkbox_dev"):
-                    dev_project = 'Yes'
-                if request.form.get("project_id") == "":
-                    raise Exception("Project ID is required for raw data!")
-                if request.form.get("flowcell") == "":
-                    raise Exception("Flowcell serial number is required for raw data!")
-                samplesheet = make_raw(dev_project, request.form.get("flowcell"), request.form.get("pid"))
-        else:   
-            samples = request.files["samples"]
-            projects = request.files["projects"]
-            # Do something with the uploaded CSV file...
-            samples_data = samples.stream.read().decode("utf-8")
-            projects_data = projects.stream.read().decode("utf-8")
-            samplesheet = generate_genomics_sheet(samples_data, projects_data, request.form)
-
+        samples = request.files["samples"]
+        projects = request.files["projects"]
+        # Do something with the uploaded CSV file...
+        samples_data = samples.stream.read().decode("utf-8")
+        projects_data = projects.stream.read().decode("utf-8")
+        samplesheet = generate_genomics_sheet(samples_data,
+                                               projects_data,
+                                                 request.form
+                                                 )
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
         response.headers[
@@ -183,19 +173,6 @@ def combine_filestreams(filestreams, allowed_columns):
         file_list.append(file_csv)
     filestreams = pd.concat(file_list)
     return filestreams
-
-def make_raw(dev_project, flowcell, pid):
-    """
-    In the case of raw data we need the simplest samplesheet possible
-    that would be a flowcell ID and a project ID under a [Header]
-    also probably dev project
-    """
-    return f"""[Header]
-FileFormatVersion,1,
-DevelopmentProject,{dev_project},
-Flowcell,{flowcell},
-Project_ID,{pid},
-    """
 
 
 if __name__ == "__main__":
