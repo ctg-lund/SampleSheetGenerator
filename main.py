@@ -174,19 +174,6 @@ def combine_filestreams(filestreams, allowed_columns):
     filestreams = pd.concat(file_list)
     return filestreams
 
-def make_raw(dev_project, flowcell, pid):
-    """
-    In the case of raw data we need the simplest samplesheet possible
-    that would be a flowcell ID and a project ID under a [Header]
-    also probably dev project
-    """
-    return f"""[Header]
-FileFormatVersion,1,
-DevelopmentProject,{dev_project},
-Flowcell,{flowcell},
-Project_ID,{pid},
-    """
-
 
 if __name__ == "__main__":
     # localhost:5000
