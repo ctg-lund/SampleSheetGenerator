@@ -3,7 +3,14 @@ import re
 
 
 class singleCellSheet:
-    def __init__(self, data_csv, flexfile, feature_ref, singleindex: bool, development_status: bool):
+    def __init__(
+        self,
+        data_csv,
+        flexfile,
+        feature_ref,
+        singleindex: bool,
+        development_status: bool,
+    ):
         # attempt to open data with pandas
         self.singleindex = singleindex
         self.development_status = development_status
@@ -151,7 +158,7 @@ class singleCellSheet:
         if self.singleindex:
             data_columns = ["Sample_ID", "index", "Sample_Project"]
         else:
-            data_columns = ['Sample_ID', 'index', 'index2','Sample_Project']
+            data_columns = ["Sample_ID", "index", "index2", "Sample_Project"]
         self.dataDf_header = "[Data]\n"
         self.dataDf_header += self.dataDf[data_columns].to_csv(index=False)
 
@@ -164,7 +171,7 @@ class singleCellSheet:
             self.header += "DevelopmentProject,No\n"
 
     def write_settings(self):
-        self.settings = '[Settings]\n'
+        self.settings = "[Settings]\n"
 
         if self.singleindex:
             self.settings += "CreateFastqForIndexReads,1\n"
@@ -221,6 +228,11 @@ class singleCellSheet:
             "sample_pair",
             "nuclei",
             "libtype",
+            "cytaimage",
+            "darkimage",
+            "image",
+            "slide",
+            "slide_area",
         ]
         self.parse_libraries_pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.dataDf.columns]
@@ -422,6 +434,7 @@ class pep2samplesheet:
     As decided we will create Illumina v1 samplesheets going forward
     due to the restrictiveness of v2
     """
+
     def __init__(self, data_csv, projects_csv):
         # init data
         self.data = data_csv
@@ -430,25 +443,25 @@ class pep2samplesheet:
         self.lane_divider = False
         self.shared_flowcell = False
         # check lanes
-        self.check_shared_flowcell()    
+        self.check_shared_flowcell()
         # lowercase
         self.lower_case_colnames()
         # check duplicate indexes
         self.check_duplicate_indexes()
         # Params
-        self.sequencer = ''
-        self.seqonly_project = 'No'
+        self.sequencer = ""
+        self.seqonly_project = "No"
         # keep empty for testing
-        self.flowcell = ''
-        self.dev_project = 'No'
+        self.flowcell = ""
+        self.dev_project = "No"
         # init patterns
-        self.project_id_pattern = re.compile(r'^\d{4}_\d{3}$')
-        self.sample_name_pattern = re.compile(r'^[0-9A-Za-z_-]+$')
-        self.index_pattern = re.compile(r'^[ATCG]+$')
+        self.project_id_pattern = re.compile(r"^\d{4}_\d{3}$")
+        self.sample_name_pattern = re.compile(r"^[0-9A-Za-z_-]+$")
+        self.index_pattern = re.compile(r"^[ATCG]+$")
         # map PEP columns to samplesheet columns
-        self.column_map : dict = {
-            'project_id': 'Sample_Project',
-            'sample_name': 'Sample_ID',
+        self.column_map: dict = {
+            "project_id": "Sample_Project",
+            "sample_name": "Sample_ID",
         }
         # validate the PEP
         self.validate()
@@ -466,36 +479,37 @@ class pep2samplesheet:
 
         Returns nothing.
         """
-        
-        if not self.df['project_id'].str.match(self.project_id_pattern).all():
-            raise Exception('Invalid project_id found in PEP!')
-        if not self.df['sample_name'].str.match(self.sample_name_pattern).all(): 
-            raise Exception('Invalid sample_name found in PEP!')
-        if not self.df['index'].str.match(self.index_pattern).all():
-            raise Exception('Invalid index found in PEP!')
+
+        if not self.df["project_id"].str.match(self.project_id_pattern).all():
+            raise Exception("Invalid project_id found in PEP!")
+        if not self.df["sample_name"].str.match(self.sample_name_pattern).all():
+            raise Exception("Invalid sample_name found in PEP!")
+        if not self.df["index"].str.match(self.index_pattern).all():
+            raise Exception("Invalid index found in PEP!")
         # valid columns for samples.csv are:
         # project_id, sample_name, index, index2, reference, experiment, control, lane
-        valid_columns = ['project_id', 
-                         'sample_name', 
-                         'index', 
-                         'index2', 
-                         'reference', 
-                         'experiment', 
-                         'control', 
-                         'lane', 
-                         'panel'
-                         ]
+        valid_columns = [
+            "project_id",
+            "sample_name",
+            "index",
+            "index2",
+            "reference",
+            "experiment",
+            "control",
+            "lane",
+            "panel",
+        ]
         for col in self.df.columns:
             if col not in valid_columns:
-                raise Exception(f'Invalid column found in samples.csv: {col}')
-        
+                raise Exception(f"Invalid column found in samples.csv: {col}")
+
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column
-        if not 'project_id' in self.projects.columns:
-            raise Exception('project_id column not found in projects.csv!')
-        if not 'fastq' in self.projects.columns:
-            raise Exception('fastq column not found in projects.csv!')
-        
+        if not "project_id" in self.projects.columns:
+            raise Exception("project_id column not found in projects.csv!")
+        if not "fastq" in self.projects.columns:
+            raise Exception("fastq column not found in projects.csv!")
+
     def check_duplicate_indexes(self):
         """
         Illumina machines will start even if a sample has the same
@@ -511,9 +525,11 @@ class pep2samplesheet:
             # in this case subset by lane
             # then look for duplicates in index + index2
             # report which samples and lanes contain duplicates
-            for lane in self.df['lane'].unique():
-                subset = self.df[self.df['lane'] == lane]
-                duplicated_rows = subset[subset['index'].str.cat(subset['index2']).duplicated()]
+            for lane in self.df["lane"].unique():
+                subset = self.df[self.df["lane"] == lane]
+                duplicated_rows = subset[
+                    subset["index"].str.cat(subset["index2"]).duplicated()
+                ]
                 if duplicated_rows.shape[0] > 0:
                     msg = f"""
                     <h4> Duplicates found in samples.csv!</h4>
@@ -529,7 +545,9 @@ class pep2samplesheet:
         else:
             # check for duplicate index pairs (index pair = index + index2)
             # report which samples contain duplicates
-            duplicated_rows = self.df[self.df['index'].str.cat(self.df['index2']).duplicated()]
+            duplicated_rows = self.df[
+                self.df["index"].str.cat(self.df["index2"]).duplicated()
+            ]
             if duplicated_rows.shape[0] > 0:
                 # we can only print in one line
                 # so we will print the sample names, project ids and index pairs
@@ -543,23 +561,23 @@ class pep2samplesheet:
                 {duplicated_rows.to_html(index=False)}    
 """
                 raise Exception(msg)
-  
+
     def check_shared_flowcell(self):
         """
         Check if samples belong to a shared flowcell.
         A shared flowcell has more than one project id in
         the project_id column.
-        Also check if there is a lane divider. There is 
+        Also check if there is a lane divider. There is
         a lane divider if there are more than one unique
         value in the lane column.
         """
         # check if there is more than one unique project id
-        if len(self.df['project_id'].unique()) > 1:
+        if len(self.df["project_id"].unique()) > 1:
             self.shared_flowcell = True
         # check if there is more than one unique lane
         # the lane column is optional
-        if 'lane' in self.df.columns:
-            if len(self.df['lane'].unique()) > 1:
+        if "lane" in self.df.columns:
+            if len(self.df["lane"].unique()) > 1:
                 self.lane_divider = True
 
     def lower_case_colnames(self):
@@ -568,7 +586,7 @@ class pep2samplesheet:
         """
         self.df.columns = self.df.columns.str.lower()
         self.projects.columns = self.projects.columns.str.lower()
-    
+
     def make_ss(self):
         """
         Assemble dataframe and illumina v1 static string
@@ -589,42 +607,41 @@ class pep2samplesheet:
         # headers
         ss_1_string += ",".join(df.columns) + "\n"
         # Convert the dataframe to a string
-        str_df = df.apply(lambda x: ','.join(x.astype(str)), axis=1)
+        str_df = df.apply(lambda x: ",".join(x.astype(str)), axis=1)
         # Join the rows with a newline
-        str_df = '\n'.join(str_df)
+        str_df = "\n".join(str_df)
         # Append the string to the samplesheet
         ss_1_string += str_df
         # rename columns in projects.csv
         self.projects.rename(columns=self.column_map, inplace=True)
         # convert self.projects to a string
-        str_projects = self.projects.apply(lambda x: ','.join(x.astype(str)), axis=1)
+        str_projects = self.projects.apply(lambda x: ",".join(x.astype(str)), axis=1)
         # join the rows with a newline
-        str_projects = '\n'.join(str_projects)
+        str_projects = "\n".join(str_projects)
         # append the string to the samplesheet
         ss_1_string += "\n\n[Projects_Data]\n"
         ss_1_string += ",".join(self.projects.columns) + "\n"
         ss_1_string += str_projects
         # return the string
         return ss_1_string
-    
+
     def reverse_complement(self, nucleotide_string):
-        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
         reverse = nucleotide_string[::-1]
-        reverse_complement = ''.join(complement.get(base, base) for base in reverse)
+        reverse_complement = "".join(complement.get(base, base) for base in reverse)
         return reverse_complement
-    
+
     def rc_indexes(self):
         """
         Use reverse_complement() on indexes in self.df['index2]
         """
-        self.df['index2'] = self.df['index2'].apply(self.reverse_complement)
-    
+        self.df["index2"] = self.df["index2"].apply(self.reverse_complement)
+
     def write_to_file(self, file):
         """
         Write the samplesheet to a file
         returns nothing
         """
         ss_1_string = self.seq_only()
-        with open(file, 'wb') as f:
-            f.write(ss_1_string.encode('ascii', 'ignore'))
-    
+        with open(file, "wb") as f:
+            f.write(ss_1_string.encode("ascii", "ignore"))
