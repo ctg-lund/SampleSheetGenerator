@@ -1,4 +1,4 @@
 import sys
-import os
+from pathlib import Path
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path(__file__).resolve().name)
