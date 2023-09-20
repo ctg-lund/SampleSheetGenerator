@@ -221,6 +221,11 @@ class singleCellSheet:
             "sample_pair",
             "nuclei",
             "libtype",
+            "cytaimage",
+            "darkimage",
+            "image",
+            "slide",
+            "slide_area"
         ]
         self.parse_libraries_pipelines()
         tenx_columns = [x for x in tenx_columns if x in self.dataDf.columns]
