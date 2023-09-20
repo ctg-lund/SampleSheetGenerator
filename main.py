@@ -22,11 +22,12 @@ def handle_error(e):
     etype, value, tb = sys.exc_info()
     traceback_lines = traceback.format_exception(etype, value, tb)
     traceback_string = "".join(traceback_lines)
-    traceback_html = traceback_string.replace('\n', '<br>')
+    traceback_html = traceback_string.replace("\n", "<br>")
     # also find the line that starts with Exception: and make it
     # a html header 4
-    traceback_html = re.sub(r'Exception:', r'<h4>\g<0></h4>', traceback_html) 
+    traceback_html = re.sub(r"Exception:", r"<h4>\g<0></h4>", traceback_html)
     return render_template("error.html", traceback_lines=traceback_html), 500
+
 
 @app.route("/", methods=["GET", "POST"])
 def upload():
@@ -37,20 +38,15 @@ def upload():
         # Do something with the uploaded CSV file...
         samples_data = samples.stream.read().decode("utf-8")
         projects_data = projects.stream.read().decode("utf-8")
-        samplesheet = generate_genomics_sheet(samples_data,
-                                               projects_data,
-                                                 request.form
-                                                 )
+        samplesheet = generate_genomics_sheet(samples_data, projects_data, request.form)
         response = make_response(samplesheet)
         response.headers["Content-Type"] = "text/csv"
         response.headers[
-                "Content-Disposition"
-            ] = f"attachment; filename=CTG_SampleSheet_{request.form.get('flowcell')}.csv"
+            "Content-Disposition"
+        ] = f"attachment; filename=CTG_SampleSheet_{request.form.get('flowcell')}.csv"
         return response
     else:
         return render_template("forms.html")
-
-
 
 
 @app.route("/singlecell", methods=["GET", "POST"])
@@ -62,7 +58,7 @@ def upload_singlecell():
         else:
             singleindex = False
             samplesheet_columns = ["Sample_ID", "Sample_Project", "index", "index2"]
-        if (request.form.get("dev-project") =="true"):
+        if request.form.get("dev-project") == "true":
             development_status = True
         else:
             development_status = False
@@ -131,8 +127,12 @@ def upload_lab_report():
         return render_template("lab_report.html")
 
 
-def generate_singlecell_sheet(csv_data, flexfile, feature_ref, singleindex, development_status):
-    samplesheet = singleCellSheet(csv_data, flexfile, feature_ref, singleindex, development_status)
+def generate_singlecell_sheet(
+    csv_data, flexfile, feature_ref, singleindex, development_status
+):
+    samplesheet = singleCellSheet(
+        csv_data, flexfile, feature_ref, singleindex, development_status
+    )
     samplesheet = samplesheet.dataDf
     return samplesheet
 
@@ -150,14 +150,13 @@ def generate_genomics_sheet(samples_data, projects_data, form):
     if not samplesheet.flowcell:
         raise Exception("Flowcell serial number is required!")
     # RC
-    if form.get('checkbox_rc'):
-        samplesheet.rc_indexes() 
+    if form.get("checkbox_rc"):
+        samplesheet.rc_indexes()
     # generate samplesheet
-    ss_string : str = ''
-    ss_string = samplesheet.make_ss()   
+    ss_string: str = ""
+    ss_string = samplesheet.make_ss()
 
     return ss_string
-
 
 
 def combine_filestreams(filestreams, allowed_columns):
