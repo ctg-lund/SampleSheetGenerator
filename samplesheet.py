@@ -26,6 +26,7 @@ class singleCellSheet:
             "NT": pd.read_csv("data/Dual_Index_Kit_NT_Set_A.csv"),
             "TT": pd.read_csv("data/Dual_Index_Kit_TT_Set_A.csv"),
             "TS": pd.read_csv("data/Dual_Index_Kit_TS_Set_A.csv"),
+            "TN": pd.read_csv("data/Dual_Index_Kit_TN_Set_A.csv"),
             "TotalSeq": pd.read_csv("data/TotalSeq_A_Dual_Index_Primer_Tables.csv"),
         }
         self.single_index_kits = {"N": pd.read_csv("data/Single_Index_Kit_N_Set_A.csv")}
