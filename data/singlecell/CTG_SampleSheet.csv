@@ -26,6 +26,7 @@ sample-18,AATGCCATGA,GCATTACGTA,project10
 sample-19,GCCTTCGGTA,AAATCGTTGG,project7
 sample-20,GCACTGAGAA,TTCACGCATA,project7
 sample-21,TATTGAGGCA,CACTTACCTG,project7
+sample-22,AGTATCTGCA,TCGCTAGCGA,project8
 [10X_Data]
 Sample_ID,Sample_Project,Sample_Species,pipeline,agg,force,sample_pair,libtype,cytaimage,darkimage,image,slide,slide_area
 sample-1,project1,human,scrna-10x,n,n,n,gex,n,n,n,n,n
@@ -49,6 +50,7 @@ sample-18,project10,human,scvisium-10x,n,n,n,visium,cytaimage,darkimage,image,sl
 sample-19,project7,human,scmulti-10x,n,n,5,gex,n,n,n,n,n
 sample-20,project7,human,scmulti-10x,n,n,5,tcr,n,n,n,n,n
 sample-21,project7,human,scmulti-10x,n,n,5,bcr,n,n,n,n,n
+sample-22,project8,human,scrna-10x,n,n,n,gex,n,n,n,n,n
 [FlexConfig_Data]
 sample_id,probe_barcode_ids,Sample_Source
 sample1,BC001|BC002,sample-7
