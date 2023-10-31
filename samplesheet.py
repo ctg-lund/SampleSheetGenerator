@@ -443,6 +443,9 @@ class pep2samplesheet:
         self.projects = pd.read_csv(projects_csv)
         self.lane_divider = False
         self.shared_flowcell = False
+        self.single_index = False
+        # check if single index
+        self.check_single_index()
         # check lanes
         self.check_shared_flowcell()
         # lowercase
@@ -522,7 +525,7 @@ class pep2samplesheet:
         the same across lanes, but not within.
         """
         # check for duplicate index pairs
-        if self.lane_divider:
+        if self.lane_divider and not self.single_index:
             # in this case subset by lane
             # then look for duplicates in index + index2
             # report which samples and lanes contain duplicates
@@ -543,7 +546,7 @@ class pep2samplesheet:
                     """
                     raise Exception(msg)
 
-        else:
+        elif not self.single_index:
             # check for duplicate index pairs (index pair = index + index2)
             # report which samples contain duplicates
             duplicated_rows = self.df[
@@ -580,6 +583,18 @@ class pep2samplesheet:
         if "lane" in self.df.columns:
             if len(self.df["lane"].unique()) > 1:
                 self.lane_divider = True
+
+    def check_single_index(self):
+        """
+        The input is single index if there is a index column
+        and not an index2 column OR
+        if there is an index column and an index2 column
+        but index2 is empty.
+        """
+        if not "index2" in self.df.columns:
+            self.single_index = True
+        elif self.df["index2"].isna().all():
+            self.single_index = True
 
     def lower_case_colnames(self):
         """

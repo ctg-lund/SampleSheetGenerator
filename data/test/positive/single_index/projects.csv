@@ -1,0 +1,2 @@
+project_id,bcl,fastq,bam,vcf,rna_counts,differential_expression,fastqc,fastqscreen
+2023_001,No,Yes,No,No,No,No,Yes,No
