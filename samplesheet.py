@@ -514,7 +514,7 @@ class pep2samplesheet:
             # values, accepted values are:
             valid_references = ["hg19", "hg38", "Homo sapiens", 
                                 "Human", "Mouse", "Rat",
-                                "Mus musculus", "Rattus norvegicus"]
+                                "Mus musculus", "Rattus norvegicus", "Pig"]
             if not self.df["reference"].isin(valid_references).all():
                 raise Exception(f"Invalid reference!\nValid references are:\{valid_references}")
         
