@@ -1,3 +1,3 @@
 sample_name,project_id,index,index2,reference,control,experiment,panel
 sample1,2023_001,AGAT,TAGA,bad_ref,control1,experiment1,GMCK
-sample2,2023_001,AGAT,TAGA,bad_ref,control2,experiment2,GMCK
+sample2,2023_001,AGGT,TGGA,bad_ref,control2,experiment2,GMCK
