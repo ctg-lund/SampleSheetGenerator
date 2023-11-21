@@ -483,13 +483,16 @@ class pep2samplesheet:
 
         Returns nothing.
         """
-
+        # check for empty columns
+        if self.df.isnull().values.any():
+            raise Exception("Empty columns found in samples.csv!")
+        # check for invaild project id, sample name and index
         if not self.df["project_id"].str.match(self.project_id_pattern).all():
-            raise Exception("Invalid project_id found in PEP!")
+            raise Exception("Invalid project_id found in samples.csv!")
         if not self.df["sample_name"].str.match(self.sample_name_pattern).all():
-            raise Exception("Invalid sample_name found in PEP!")
+            raise Exception("Invalid sample_name found in samples.csv!")
         if not self.df["index"].str.match(self.index_pattern).all():
-            raise Exception("Invalid index found in PEP!")
+            raise Exception("Invalid index found in samples.csv!")
         # valid columns for samples.csv are:
         # project_id, sample_name, index, index2, reference, experiment, control, lane
         valid_columns = [
@@ -506,6 +509,16 @@ class pep2samplesheet:
         for col in self.df.columns:
             if col not in valid_columns:
                 raise Exception(f"Invalid column found in samples.csv: {col}")
+        # if there is a reference column, check that it contains valid
+        if "reference" in self.df.columns:
+            # values, accepted values are:
+            valid_references = ["hg19", "hg38", "Homo sapiens", 
+                                "Human", "Mouse", "Rat",
+                                "Mus musculus", "Rattus norvegicus"]
+            if not self.df["reference"].isin(valid_references).all():
+                raise Exception(f"Invalid reference!\nValid references are:\{valid_references}")
+        
+        
 
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column
