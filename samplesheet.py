@@ -512,13 +512,21 @@ class pep2samplesheet:
         # if there is a reference column, check that it contains valid
         if "reference" in self.df.columns:
             # values, accepted values are:
-            valid_references = ["hg19", "hg38", "Homo sapiens", 
-                                "Human", "Mouse", "Rat",
-                                "Mus musculus", "Rattus norvegicus", "Pig"]
+            valid_references = [
+                "hg19",
+                "hg38",
+                "Homo sapiens",
+                "Human",
+                "Mouse",
+                "Rat",
+                "Mus musculus",
+                "Rattus norvegicus",
+                "Pig",
+            ]
             if not self.df["reference"].isin(valid_references).all():
-                raise Exception(f"Invalid reference!\nValid references are:\{valid_references}")
-        
-        
+                raise Exception(
+                    f"Invalid reference!\nValid references are:\{valid_references}"
+                )
 
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column
