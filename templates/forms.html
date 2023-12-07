@@ -5,6 +5,26 @@
 {% endblock %}
 
 {% block content %}
+<style>
+  table {
+    border:1px solid #b3adad;
+    border-collapse:collapse;
+    padding:5px;
+  }
+  table th {
+    border:1px solid #b3adad;
+    padding:5px;
+    background: #f0f0f0;
+    color: #313030;
+  }
+  table td {
+    border:1px solid #b3adad;
+    text-align:center;
+    padding:5px;
+    background: #ffffff;
+    color: #313030;
+  }
+</style>
   <h1>Check all that applies</h1>
   <form method="POST" enctype="multipart/form-data">
     <div class="form-group">
@@ -17,6 +37,19 @@
       <input type="text" id="flowcell" name="flowcell" pattern="^\w+$">
       <div></div>
       <h2>Reverse Complement Index2?</h2>
+      <p>
+        <h5>When to check this box:</h3>
+        <ul>
+          <li>If you are using Davids excel sheet and NovaseqX, you should check this box.</li>
+          <li>If you are not using Davids excel sheet and Novaseq6000, you should check this box.</li>
+        </ul>
+        <br>
+        Otherwise you should (probably) not check this box!
+        <br><br>
+        * Always check which orientation the index in your source is in, default should be Forward.
+        <br>
+        <a href="https://knowledge.illumina.com/software/general/software-general-reference_material-list/000001800">Illumina support</a>
+      </p>
       <label for="RC">RC Index2 (Novaseq 6000)</label>
       <input type="checkbox" id="checkbox_rc" name="checkbox_rc">
     </div>
