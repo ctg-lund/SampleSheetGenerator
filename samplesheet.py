@@ -505,6 +505,7 @@ class pep2samplesheet:
             "control",
             "lane",
             "panel",
+            "overridecycles",
         ]
         for col in self.df.columns:
             if col not in valid_columns:
