@@ -405,6 +405,7 @@ class pep2samplesheet:
             "lane",
             "panel",
             "overridecycles",
+            "barcodemismatchesindex"
         ]
         for col in self.df.columns:
             if col not in valid_columns:
