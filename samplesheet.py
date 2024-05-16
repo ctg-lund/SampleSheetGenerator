@@ -330,8 +330,11 @@ class singleCellSheet:
 def replace_missing_num_values_with_default(df, column, default) -> None:
     # check if column exists first
     if column in df.columns:
+        print(f"Checking {column}")
         df[column] = pd.to_numeric(df[column], errors="coerce")
+        print(df[column])
         df[column].fillna(default, inplace=True)
+        print(df[column])
 
 
 class pep2samplesheet:
@@ -376,6 +379,8 @@ class pep2samplesheet:
         }
         # validate the PEP
         self.validate()
+        # correct casing
+        self.correct_casing()
 
     def validate(self):
         """
@@ -390,6 +395,15 @@ class pep2samplesheet:
 
         Returns nothing.
         """
+        # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
+        # default to 1 if not specified as a number
+        print(self.df.columns)
+        replace_missing_num_values_with_default(
+            df=self.df, column="barcodemismatchesindex1", default=1
+        )
+        replace_missing_num_values_with_default(
+            df=self.df, column="barcodemismatchesindex2", default=1
+        )
         # check for empty columns
         if self.df.isnull().values.any():
             raise Exception("Empty columns found in samples.csv!")
@@ -437,14 +451,6 @@ class pep2samplesheet:
                 raise Exception(
                     f"Invalid reference!\nValid references are:\{valid_references}"
                 )
-            # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
-            # default to 1 if not specified as a number
-            replace_missing_num_values_with_default(
-                df=self.df, column="BarcodeMismatchesIndex1", default=1
-            )
-            replace_missing_num_values_with_default(
-                df=self.df, column="BarcodeMismatchesIndex2", default=1
-            )
 
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column
@@ -541,6 +547,18 @@ class pep2samplesheet:
         """
         self.df.columns = self.df.columns.str.lower()
         self.projects.columns = self.projects.columns.str.lower()
+
+    def correct_casing(self):
+        """
+        Certain columns are case sensitive
+        The casing should be FirstWordUpperCase
+        """
+        corrdict = {
+            "overridecycles": "OverrideCycles",
+            "barcodemismatchesindex1": "BarcodeMismatchesIndex1",
+            "barcodemismatchesindex2": "BarcodeMismatchesIndex2",
+        }
+        self.df.rename(columns=corrdict, inplace=True)
 
     def make_ss(self):
         """
