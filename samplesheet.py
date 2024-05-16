@@ -326,6 +326,14 @@ class singleCellSheet:
             + self.feature_ref_header
         )
 
+
+def replace_missing_num_values_with_default(df, column, default) -> None:
+    # check if column exists first
+    if column in df.columns:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
+        df[column].fillna(default, inplace=True)
+
+
 class pep2samplesheet:
     """
     The PEP is published here: <github link>
@@ -406,7 +414,7 @@ class pep2samplesheet:
             "panel",
             "overridecycles",
             "barcodemismatchesindex1",
-            "barcodemismatchesindex2"
+            "barcodemismatchesindex2",
         ]
         for col in self.df.columns:
             if col not in valid_columns:
@@ -429,6 +437,14 @@ class pep2samplesheet:
                 raise Exception(
                     f"Invalid reference!\nValid references are:\{valid_references}"
                 )
+            # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
+            # default to 1 if not specified as a number
+            replace_missing_num_values_with_default(
+                df=self.df, column="BarcodeMismatchesIndex1", default=1
+            )
+            replace_missing_num_values_with_default(
+                df=self.df, column="BarcodeMismatchesIndex2", default=1
+            )
 
         # only check that columns exist
         # projects df needs at least a project_id and a fastq column
