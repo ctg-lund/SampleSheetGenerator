@@ -330,12 +330,9 @@ class singleCellSheet:
 def replace_missing_num_values_with_default(df, column, default) -> None:
     # check if column exists first
     if column in df.columns:
-        print(f"Checking {column}")
         df[column] = pd.to_numeric(df[column], errors="coerce")
-        print(df[column])
         df[column].fillna(default, inplace=True)
-        print(df[column])
-
+        df[column] = df[column].astype(int)
 
 class pep2samplesheet:
     """
@@ -397,7 +394,6 @@ class pep2samplesheet:
         """
         # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
         # default to 1 if not specified as a number
-        print(self.df.columns)
         replace_missing_num_values_with_default(
             df=self.df, column="barcodemismatchesindex1", default=1
         )
