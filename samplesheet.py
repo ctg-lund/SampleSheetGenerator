@@ -327,105 +327,12 @@ class singleCellSheet:
         )
 
 
-class illuminav2:
-    def __init__(self, data_csv):
-        # attempt to open data with pandas
-        self.dataDf = pd.read_csv(data_csv)
-        self.indexes = pd.DataFrame()
-        self.index_kit = ""
-        self.commas = self.dataDf.shape[1] + 1
-        self.read1cycles = 151
-        self.adapters = [
-            "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA",
-            "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT",
-        ]
-        self.pipeline = "SeqOnly"
-        # the flowcell is located in RunInfo.xml
-        # self.flowcell = 'H7Y2VBCXY'
-        # flag for removal, track in database!
-        self.lab_worker = "John Doe"
-        self.bnf_worker = "Jane Doe"
-        self.sequencer = "NovaSeq"
-        # always validate the input data!
-        self.validate()
-
-    def validate(self):
-        # we should only have these columns:
-        # 'Lane', 'Sample_ID', 'Sample_Project'
-        # all other columns need to be removed
-        # if these columns do not exist we fail
-        valid_columns = ["Lane", "Sample_ID", "Sample_Project"]
-        for col in self.dataDf.columns:
-            if col not in valid_columns:
-                self.dataDf.drop(col, axis=1, inplace=True)
-        # see that the number of columns is now 3
-        if self.dataDf.shape[1] < 3:
-            raise Exception("No valid columns found in input data!")
-
-    def get_indexes(self, index_kit, RC=True, reference="data/index_table.csv"):
-        """
-        Get the indexes for the given index kit.
-        The index table is a csv file with the following columns:
-        Index_Adapters, Index, Index2_forward_read, Index2_reverse_complement
-        See: https://knowledge.illumina.com/software/general/software-general-reference_material-list/000001800
-        """
-        # read in the index table
-        index_table = pd.read_csv(reference)
-        # get the indexes for the given kit
-        select = index_table.loc[index_table["Index_Adapters"] == index_kit]
-        # only extract columns Index and Index2_reverse_complement or Index2_forward_read
-        # depending on whether i2_rev_trans is True or False
-        if RC:
-            indexes = select.loc[:, ["Index", "Index2_reverse_complement"]]
-        else:
-            indexes = select.loc[:, ["Index", "Index2_forward_read"]]
-        self.indexes = indexes
-
-        # reshape indexes by removing rows until there are as many rows as in self.dataDf
-        self.indexes.drop(self.indexes.index[self.dataDf.shape[0] :], inplace=True)
-
-        # reset the index
-        self.indexes.reset_index(drop=True, inplace=True)
-        # add the indexes to the data
-        print(indexes)
-        self.dataDf["index"] = self.indexes.loc[:, "Index"]
-        # variable column name!
-        self.dataDf["index2"] = self.indexes.iloc[:, 1]
-        print(self.dataDf)
-
-    def make_full_string(self):
-        dstr = ",".join(re.split(r"[ \t]+", (self.dataDf.to_string(index=False))))
-        # remove leading commas
-        dstr = re.sub(r"\n,", "\n", dstr)
-        # remove first comma
-        dstr = re.sub(r"^,", "\n", dstr)
-        # trim whitespace
-        dstr = dstr.strip()
-        self.string = f"""[Header],,
-FileFormatVersion,2,
-,,
-[Reads],,
-Read1Cycles,{self.read1cycles},
-,,
-[Yggdrasil_Settings],,
-Pipeline,{self.pipeline},,
-LabWorker,{self.lab_worker},,
-BNFWorker,{self.bnf_worker},,
-,,
-[BCLConvert_Settings],,
-AdapterRead1,{self.adapters[0]},,
-AdapterRead2,{self.adapters[1]},,
-,,
-[BCLConvert_Data],,
-{dstr}
-,,
-"""
-
-    def write_to_file(self, file):
-        self.make_full_string()
-        with open(file, "wb") as f:
-            f.write(self.string.encode("ascii", "ignore"))
-
+def replace_missing_num_values_with_default(df, column, default) -> None:
+    # check if column exists first
+    if column in df.columns:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
+        df[column].fillna(default, inplace=True)
+        df[column] = df[column].astype(int)
 
 class pep2samplesheet:
     """
@@ -469,6 +376,8 @@ class pep2samplesheet:
         }
         # validate the PEP
         self.validate()
+        # correct casing
+        self.correct_casing()
 
     def validate(self):
         """
@@ -483,6 +392,14 @@ class pep2samplesheet:
 
         Returns nothing.
         """
+        # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
+        # default to 1 if not specified as a number
+        replace_missing_num_values_with_default(
+            df=self.df, column="barcodemismatchesindex1", default=1
+        )
+        replace_missing_num_values_with_default(
+            df=self.df, column="barcodemismatchesindex2", default=1
+        )
         # check for empty columns
         if self.df.isnull().values.any():
             raise Exception("Empty columns found in samples.csv!")
@@ -506,6 +423,8 @@ class pep2samplesheet:
             "lane",
             "panel",
             "overridecycles",
+            "barcodemismatchesindex1",
+            "barcodemismatchesindex2",
         ]
         for col in self.df.columns:
             if col not in valid_columns:
@@ -624,6 +543,18 @@ class pep2samplesheet:
         """
         self.df.columns = self.df.columns.str.lower()
         self.projects.columns = self.projects.columns.str.lower()
+
+    def correct_casing(self):
+        """
+        Certain columns are case sensitive
+        The casing should be FirstWordUpperCase
+        """
+        corrdict = {
+            "overridecycles": "OverrideCycles",
+            "barcodemismatchesindex1": "BarcodeMismatchesIndex1",
+            "barcodemismatchesindex2": "BarcodeMismatchesIndex2",
+        }
+        self.df.rename(columns=corrdict, inplace=True)
 
     def make_ss(self):
         """
