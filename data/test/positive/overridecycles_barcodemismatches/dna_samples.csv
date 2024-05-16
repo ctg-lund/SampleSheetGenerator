@@ -1,3 +1,4 @@
-sample_name,project_id,index,index2,reference,control,experiment,panel,BarcodeMismatchesIndex,Overridecycles
-sample1,2023_001,AGAT,TAGA,hg38,control1,experiment1,GMCK,0,Y150;I8N2;I8N2;Y150
-sample2,2023_001,AGGT,TTGA,hg38,control2,experiment2,GMCK,1,Y150;I10;I10;Y150
+sample_name,project_id,index,index2,reference,control,experiment,panel,BarcodeMismatchesIndex1,BarcodeMismatchesIndex2,Overridecycles
+sample1,2023_001,AGAT,TAGA,hg38,control1,experiment1,GMCK,0,0,Y150;I8N2;I8N2;Y150
+sample2,2023_001,AGGT,TTGA,hg38,control2,experiment2,GMCK,1,1,Y150;I10;I10;Y150
+sample3,2023_001,AAGT,TTGT,hg38,control2,experiment2,GMCK,1,0,Y150;I10;I10;Y150
