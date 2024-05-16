@@ -38,17 +38,20 @@
       <div></div>
       <h2>Reverse Complement Index2?</h2>
       <p>
-        <h5>When to check this box:</h3>
-        <ul>
-          <li>If you are using Davids excel sheet and NovaseqX, you should check this box.</li>
-          <li>If you are not using Davids excel sheet and Novaseq6000, you should check this box.</li>
-        </ul>
-        <br>
-        Otherwise you should (probably) not check this box!
-        <br><br>
-        * Always check which orientation the index in your source is in, default should be Forward.
-        <br>
-        <a href="https://knowledge.illumina.com/software/general/software-general-reference_material-list/000001800">Illumina support</a>
+<p><strong>Assumptions:</strong></p>
+<ol>
+  <li>i7 = index, i5 = <code>index2</code></li>
+  <li>This app expects index sequences to be in forward orientation.</li>
+  <li>This app will reverse complement <code>index2</code> if you check this box.</li>
+  <li>Check this box when using Novaseq6000 chemistry version 1.5.</li>
+  <li>When using David's excel sheet with Novaseq6000 selected, it produces reverse complemented <code>index2</code>
+    sequences. If you are using David's excel sheet and NovaseqX, you should check this box to undo this action.</li>
+</ol>
+<p>Always check which orientation the index is in with your index manufacturer's documentation. The <code>index2</code>
+  orientation appropriate for the sequencer is available <a href="https://knowledge.illumina.com/software/general/software-general-reference_material-list/000001800">here</a>, using column Standalone BCLConvert.</p>
+
+
+
       </p>
       <label for="RC">RC Index2 (Novaseq 6000)</label>
       <input type="checkbox" id="checkbox_rc" name="checkbox_rc">
