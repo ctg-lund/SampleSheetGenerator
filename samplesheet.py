@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from io import StringIO
 
 
 class singleCellSheet:
@@ -345,18 +346,19 @@ class pep2samplesheet:
 
     def __init__(self, data_csv, projects_csv):
         # init data
+        data_csv = self.scrub_trailing_commas(data_csv)
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
         self.projects = pd.read_csv(projects_csv)
         self.lane_divider = False
         self.shared_flowcell = False
         self.single_index = False
+        # lowercase
+        self.lower_case_colnames()
         # check if single index
         self.check_single_index()
         # check lanes
         self.check_shared_flowcell()
-        # lowercase
-        self.lower_case_colnames()
         # check duplicate indexes
         self.check_duplicate_indexes()
         # Params
@@ -378,6 +380,17 @@ class pep2samplesheet:
         self.validate()
         # correct casing
         self.correct_casing()
+    
+    def scrub_trailing_commas(self, strIO_obj):
+        """
+        use regex to remove trailing commas from string IO object
+        to prevent pandas from interpreting them as empty columns
+        """
+        clean_str = ''
+        for line in strIO_obj.getvalue().split():
+            clean_str += re.sub(r',+$', '', line) + '\n'
+        return StringIO(clean_str)
+
 
     def validate(self):
         """
@@ -477,7 +490,7 @@ class pep2samplesheet:
                 ]
                 if duplicated_rows.shape[0] > 0:
                     msg = f"""
-                    <h4> Duplicates found in samples.csv!</h4>
+                    <h4> Duplicates found in samples.csv! LANE {lane}</h4>
 
                     The following samples have the same index pair in lane {lane}:
                     {duplicated_rows['sample_name'].to_string(index=False)}
