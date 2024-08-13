@@ -386,8 +386,9 @@ class pep2samplesheet:
         use regex to remove trailing commas from string IO object
         to prevent pandas from interpreting them as empty columns
         """
-        trailing_commas = re.compile(r',,+')
-        clean_str = re.sub(trailing_commas, '', strIO_obj.getvalue())
+        clean_str = ''
+        for line in strIO_obj.getvalue().split():
+            clean_str += re.sub(r',+$', '', line) + '\n'
         return StringIO(clean_str)
 
 
