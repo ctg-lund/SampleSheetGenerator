@@ -405,6 +405,9 @@ class pep2samplesheet:
 
         Returns nothing.
         """
+        # project_id, sample_name and index and index2 should be forced to be strings
+        for column_name in ['project_id','sample_name','index','index2']:
+            self.df[column_name] = self.df[column_name].astype(str)
         # check that BarcodeMismatchesIndex1 and BarcodeMismatchesIndex2
         # default to 1 if not specified as a number
         replace_missing_num_values_with_default(
