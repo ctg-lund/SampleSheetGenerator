@@ -351,12 +351,12 @@ class pep2samplesheet:
         self.lane_divider = False
         self.shared_flowcell = False
         self.single_index = False
+        # lowercase
+        self.lower_case_colnames()
         # check if single index
         self.check_single_index()
         # check lanes
         self.check_shared_flowcell()
-        # lowercase
-        self.lower_case_colnames()
         # check duplicate indexes
         self.check_duplicate_indexes()
         # Params
@@ -477,7 +477,7 @@ class pep2samplesheet:
                 ]
                 if duplicated_rows.shape[0] > 0:
                     msg = f"""
-                    <h4> Duplicates found in samples.csv!</h4>
+                    <h4> Duplicates found in samples.csv! LANE {lane}</h4>
 
                     The following samples have the same index pair in lane {lane}:
                     {duplicated_rows['sample_name'].to_string(index=False)}
