@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from io import StringIO
 
 
 class singleCellSheet:
@@ -345,6 +346,7 @@ class pep2samplesheet:
 
     def __init__(self, data_csv, projects_csv):
         # init data
+        data_csv = self.scrub_trailing_commas(data_csv)
         self.data = data_csv
         self.df = pd.read_csv(data_csv)
         self.projects = pd.read_csv(projects_csv)
@@ -378,6 +380,16 @@ class pep2samplesheet:
         self.validate()
         # correct casing
         self.correct_casing()
+    
+    def scrub_trailing_commas(self, strIO_obj):
+        """
+        use regex to remove trailing commas from string IO object
+        to prevent pandas from interpreting them as empty columns
+        """
+        trailing_commas = re.compile(r',,+')
+        clean_str = re.sub(trailing_commas, '', strIO_obj.getvalue())
+        return StringIO(clean_str)
+
 
     def validate(self):
         """
