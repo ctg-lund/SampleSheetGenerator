@@ -98,7 +98,7 @@ class singleCellSheet:
                             self.dual_index_kits[index_kit]
                             .loc[
                                 self.dual_index_kits[index_kit].index_name == row.index,
-                                "index2_workflow_b(i5)",
+                                "index2_workflow_a(i5)",
                             ]
                             .values[0]
                         )
